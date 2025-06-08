@@ -6,109 +6,106 @@ const getDesignTokens = (mode: "light" | "dark"): ThemeOptions => ({
     ...(mode === "light"
       ? {
           primary: {
-            main: "#1976d2",
-            light: "#42a5f5",
-            dark: "#1565c0",
+            main: "#4f46e5",
+            light: "#6366f1",
+            dark: "#3730a3",
           },
           secondary: {
-            main: "#9c27b0",
-            light: "#ba68c8",
-            dark: "#7b1fa2",
+            main: "#64748b",
+            light: "#94a3b8",
+            dark: "#475569",
           },
           background: {
-            default: "#fafafa",
+            default: "#f1f5f9",
             paper: "#ffffff",
           },
           text: {
-            primary: "#212121",
-            secondary: "#757575",
+            primary: "#0f172a",
+            secondary: "#64748b",
           },
         }
       : {
           primary: {
-            main: "#90caf9",
-            light: "#e3f2fd",
-            dark: "#42a5f5",
+            main: "#6366f1",
+            light: "#818cf8",
+            dark: "#4f46e5",
           },
           secondary: {
-            main: "#ce93d8",
-            light: "#f3e5f5",
-            dark: "#ab47bc",
+            main: "#64748b",
+            light: "#94a3b8",
+            dark: "#475569",
           },
           background: {
-            default: "#121212",
-            paper: "#1e1e1e",
+            default: "#0f172a",
+            paper: "rgba(30, 41, 59, 0.95)",
           },
           text: {
-            primary: "#ffffff",
-            secondary: "#b0b0b0",
+            primary: "#f1f5f9",
+            secondary: "#94a3b8",
           },
+          divider: "rgba(148, 163, 184, 0.1)",
         }),
   },
   typography: {
-    fontFamily: "Roboto, Arial, sans-serif",
-    h1: {
-      fontSize: "2.5rem",
-      fontWeight: 300,
-    },
-    h2: {
-      fontSize: "2rem",
-      fontWeight: 300,
-    },
-    h3: {
-      fontSize: "1.75rem",
-      fontWeight: 400,
-    },
-    h4: {
-      fontSize: "1.5rem",
-      fontWeight: 400,
-    },
-    h5: {
-      fontSize: "1.25rem",
-      fontWeight: 400,
-    },
-    h6: {
-      fontSize: "1rem",
-      fontWeight: 500,
-    },
-    body1: {
-      fontSize: "1rem",
-      lineHeight: 1.5,
-    },
-    body2: {
-      fontSize: "0.875rem",
-      lineHeight: 1.43,
-    },
+    fontFamily: '"Inter", "Segoe UI", "Roboto", sans-serif',
+    h1: { fontSize: "2.5rem", fontWeight: 600, letterSpacing: "-0.025em" },
+    h2: { fontSize: "2rem", fontWeight: 600, letterSpacing: "-0.025em" },
+    h3: { fontSize: "1.75rem", fontWeight: 600, letterSpacing: "-0.025em" },
+    h4: { fontSize: "1.5rem", fontWeight: 600, letterSpacing: "-0.025em" },
+    h5: { fontSize: "1.25rem", fontWeight: 600, letterSpacing: "-0.025em" },
+    h6: { fontSize: "1rem", fontWeight: 600, letterSpacing: "-0.025em" },
+    body1: { fontSize: "1rem", lineHeight: 1.6, fontWeight: 400 },
+    body2: { fontSize: "0.875rem", lineHeight: 1.5, fontWeight: 400 },
   },
   shape: {
     borderRadius: 8,
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        "@global": {
+          "@keyframes slideUp": {
+            from: { opacity: 0, transform: "translateY(8px)" },
+            to: { opacity: 1, transform: "translateY(0)" },
+          },
+          "@keyframes fadeIn": {
+            from: { opacity: 0 },
+            to: { opacity: 1 },
+          },
+          "@keyframes pulse": {
+            "0%, 100%": { opacity: 1 },
+            "50%": { opacity: 0.6 },
+          },
+          "*": {
+            scrollbarWidth: "thin",
+            scrollbarColor:
+              mode === "dark" ? "#374151 transparent" : "#e5e7eb transparent",
+          },
+          "*::-webkit-scrollbar": { width: "4px" },
+          "*::-webkit-scrollbar-track": { background: "transparent" },
+          "*::-webkit-scrollbar-thumb": {
+            background: mode === "dark" ? "#374151" : "#e5e7eb",
+            borderRadius: "2px",
+          },
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {
           textTransform: "none",
-          borderRadius: 8,
+          borderRadius: 6,
           fontWeight: 500,
+          padding: "6px 14px",
+          transition: "all 0.15s ease-out",
         },
       },
     },
-    MuiCard: {
+    MuiPaper: {
       styleOverrides: {
         root: {
-          borderRadius: 12,
-          boxShadow:
-            mode === "light"
-              ? "0 2px 8px rgba(0, 0, 0, 0.1)"
-              : "0 2px 8px rgba(0, 0, 0, 0.3)",
-        },
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          boxShadow: "none",
-          borderBottom: `1px solid ${mode === "light" ? "#e0e0e0" : "#333"}`,
+          borderRadius: 8,
+          transition: "all 0.15s ease-out",
         },
       },
     },
