@@ -63,7 +63,117 @@ src/
 └── queries/          # Queries that implement the api functions to be used with hooks
 ```
 
+# 🧠 AI Chat App Design Guide (React Router + Material UI)
+
+A modern, elegant, fast, and responsive AI chat app that lets users chat with any LLM (GPT-4, Claude, Mistral, etc). This guide is tailored for use with **React**, **React Router**, and **Material UI (v5+).**
+
+---
+
+## 🧭 Design Philosophy
+
+- **Modern**: Sleek layouts, minimalist UI
+- **Elegant**: Clean typography, neutral base, high-contrast accents
+- **Fast**: Instantaneous feel, responsive animations
+- **Responsive**: Mobile-first breakpoints, fluid grid system
+- **Smooth**: MUI transitions + Framer Motion for UI motion
+
+---
+
+## 🎨 Color Scheme
+
+### Dark Mode (Default)
+
+| Role           | Hex       | Notes                   |
+| -------------- | --------- | ----------------------- |
+| Background     | `#0B0E14` | Full app background     |
+| Surface        | `#121820` | Card/panel base         |
+| Primary        | `#4CC9F0` | Accent (buttons, links) |
+| Secondary      | `#A6ADC8` | Secondary highlights    |
+| Tertiary       | `#FFD6A5` | Optional pop/contrast   |
+| Text (Primary) | `#FFFFFF` | Main content            |
+| Text (Muted)   | `#A0A0B2` | Subtext + timestamps    |
+| Border         | `#232A35` | Divider borders         |
+
+Use `ThemeProvider` and `createTheme` from MUI to define a **custom dark/light theme** using this palette.
+
+---
+
+## 🧱 Components (Material UI equivalents)
+
+### 🧩 Chat Bubble
+
+- Use `<Paper elevation={0} />` with `borderRadius={2}`
+- Include metadata (timestamp, model name) with `Typography` in `variant="caption"` or `body2` and muted color
+- Transition: `Slide` + `Fade` (`Grow` is okay for replies)
+
+### 🔍 Model Selector
+
+- `<Drawer variant="temporary" anchor="right">` or `<Menu />`
+- List model options using `<ListItemButton>` with model icons (`<Avatar>` or `<SvgIcon>`)
+- Add favorite pin with `<IconButton edge="end" />`
+
+### 📤 Input Bar
+
+- `<Paper component="form" square elevation={3}>` with padding
+- Use `<InputBase />` for custom input styles
+- Action buttons: `<IconButton>` for regenerate, stop, attach, settings
+- Sticky/fixed footer using `position="sticky"` or `position="fixed"`
+
+### 📄 Model Info Card
+
+- `<Card>` or `<Popover>` triggered by hover
+- Use `<CardHeader>`, `<CardContent>` to structure metadata
+- Apply `glassmorphism`: semi-transparent background, `backdropFilter: blur(10px)`
+
+### 🗂️ Conversations Sidebar
+
+- `<Drawer variant="permanent">` on desktop
+- Use `<List>`, `<ListItemIcon>`, `<ListItemText>` with avatars/icons for chats
+- Add search bar (`<TextField size="small">`) and resizable logic with CSS grid/flex
+
+### 🧮 Prompt Helper
+
+- `<Collapse>` or `<Accordion>` above input field
+- Provide prompt suggestions with `<Chip>` or `<ButtonGroup>`
+- Smooth entrance with `Fade` or `Slide` transition
+
+---
+
+## 🎞️ Animations & Transitions
+
+Use MUI’s built-in `<Fade>`, `<Slide>`, and `<Collapse>`, but for better control, combine with **Framer Motion**.
+
+| Interaction      | Animation (Timing)         |
+| ---------------- | -------------------------- |
+| Send Message     | Slide-up + fade-in (200ms) |
+| Typing Indicator | Pulsing dots (CSS/JS loop) |
+| Model Switch     | Crossfade (300ms)          |
+| Open Settings    | Drawer slide-in (right)    |
+| Theme Change     | Background fade (500ms)    |
+
+---
+
+## 🧭 Routing + Layout (React Router)
+
+- `/chat/:conversationId` — main chat view
+- `/settings` — side drawer or modal settings
+- `/model/:modelId` — optional model detail or test page
+
+### Layout
+
+Use a layout component (`<AppLayout />`) that wraps all routes:
+
+```tsx
+<AppLayout>
+  <Routes>
+    <Route path="/chat/:id" element={<ChatView />} />
+    <Route path="/settings" element={<SettingsDrawer />} />
+  </Routes>
+</AppLayout>
+
+
 ## Before Creating New Components
 
 Always check existing components in the codebase to see if they can be reused or extended rather than creating new ones.
 Always update the .cursorrules file when style changes or other relevant changes to how things should be structured/designed are mentioned
+```
