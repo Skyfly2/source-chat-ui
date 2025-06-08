@@ -21,7 +21,7 @@ export const Home: React.FC = () => {
           align="center"
           sx={{ mb: 2, fontWeight: 300 }}
         >
-          Welcome to T3 Clone
+          Welcome to Source Chat
         </Typography>
 
         <Typography

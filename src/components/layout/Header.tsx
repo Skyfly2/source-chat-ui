@@ -21,7 +21,7 @@ export const Header: React.FC = () => {
             color: "primary.main",
           }}
         >
-          T3 Clone
+          Source Chat
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
           <IconButton

@@ -1,4 +1,4 @@
-# T3 Clone Frontend Development Rules
+# Source Chat Frontend Development Rules
 
 ## Styling Guidelines
 
@@ -25,16 +25,18 @@
 - Utility functions: `src/utils/`
 - Custom hooks: `src/hooks/`
 
-## T3 Chat Clone Vision
+## Source Chat Vision
 
 The application should replicate the core functionality of T3 chat:
 
-- Clean, modern interface with dark/light theme support
-- Real-time chat functionality
-- User authentication and presence
+- Clean, modern interface with dark theme
+- Performance
+- User authentication
+- Thread management
+- Model selection
 - Channel/room management
 - Responsive design for mobile and desktop
-- Minimalist design with focus on usability
+- Modern design with focus on usability and speed
 
 ## Code Quality
 
