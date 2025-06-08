@@ -1,0 +1,66 @@
+# T3 Clone Frontend Development Rules
+
+## Styling Guidelines
+
+- Use Material-UI (MUI) components as the primary UI library
+- Follow Material Design principles for consistent UX
+- Use the custom theme defined in `src/theme/index.ts`
+- Implement responsive design using MUI breakpoints
+- Use emotion/styled for custom component styling when needed
+- Prefer sx prop over makeStyles for component-specific styles
+
+## Component Architecture
+
+- Create small, modular, reusable components
+- Use TypeScript for all components with proper type definitions
+- Follow the atomic design methodology: atoms -> molecules -> organisms -> templates -> pages
+- Place reusable components in `src/components/`
+- Place page-specific components in `src/pages/[page-name]/components/`
+- Export components from index files for clean imports
+
+## Styling Structure
+
+- Global theme configuration: `src/theme/`
+- Component styles: use sx prop or styled components
+- Utility functions: `src/utils/`
+- Custom hooks: `src/hooks/`
+
+## T3 Chat Clone Vision
+
+The application should replicate the core functionality of T3 chat:
+
+- Clean, modern interface with dark/light theme support
+- Real-time chat functionality
+- User authentication and presence
+- Channel/room management
+- Responsive design for mobile and desktop
+- Minimalist design with focus on usability
+
+## Code Quality
+
+- No code comments unless absolutely necessary for complex logic
+- Use meaningful variable and function names
+- Implement proper error boundaries
+- Use React.memo for performance optimization where needed
+- Follow React hooks best practices
+
+## File Organization
+
+```
+src/
+├── components/        # Reusable UI components
+│   ├── ui/           # Basic UI atoms (buttons, inputs, etc.)
+│   ├── layout/       # Layout components (header, sidebar, etc.)
+│   └── common/       # Common molecules and organisms
+├── pages/            # Page components and page-specific components
+├── hooks/            # Custom React hooks
+├── utils/            # Utility functions
+├── types/            # TypeScript type definitions
+├── theme/            # MUI theme configuration
+└── api/              # Axios-based API request functions
+└── queries/          # Queries that implement the api functions to be used with hooks
+```
+
+## Before Creating New Components
+
+Always check existing components in the codebase to see if they can be reused or extended rather than creating new ones.
