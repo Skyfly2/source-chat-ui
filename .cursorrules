@@ -64,3 +64,4 @@ src/
 ## Before Creating New Components
 
 Always check existing components in the codebase to see if they can be reused or extended rather than creating new ones.
+Always update the .cursorrules file when style changes or other relevant changes to how things should be structured/designed are mentioned
