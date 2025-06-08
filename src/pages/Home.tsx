@@ -89,6 +89,8 @@ export const Home: React.FC = () => {
           <Button
             variant="contained"
             size="large"
+            component="a"
+            href="/chat"
             sx={{
               px: 4,
               py: 1.5,
