@@ -48,10 +48,10 @@ export const MessagesList = memo<MessagesListProps>(
           sx={{
             maxWidth: {
               xs: "100%",
-              sm: "100%",
-              md: "1200px",
-              lg: "1400px",
-              xl: "1600px",
+              sm: "500px",
+              md: "600px",
+              lg: "800px",
+              xl: "900px",
             },
             mx: "auto",
             px: { xs: 2, sm: 3, md: 4, lg: 6, xl: 8 },
