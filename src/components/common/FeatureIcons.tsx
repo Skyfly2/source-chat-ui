@@ -58,7 +58,7 @@ export const FeatureIcons = memo<FeatureIconsProps>(
 
     if (activeFeatures.length === 0) return null;
 
-    const iconSize = size === "small" ? 14 : 16;
+    const iconSize = size === "small" ? 18 : 20;
 
     return (
       <Box
@@ -82,8 +82,8 @@ export const FeatureIcons = memo<FeatureIconsProps>(
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  width: iconSize + 4,
-                  height: iconSize + 4,
+                  width: iconSize + 6,
+                  height: iconSize + 6,
                   borderRadius: 0.5,
                   backgroundColor: `${config.color}20`,
                   border: `1px solid ${config.color}40`,

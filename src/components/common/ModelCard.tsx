@@ -45,7 +45,7 @@ export const ModelCard = memo<ModelCardProps>(
       >
         <CardActionArea
           onClick={() => onSelect(modelInfo.name)}
-          sx={{ p: 2, minHeight: 120 }}
+          sx={{ p: 1.5, minHeight: 100 }}
         >
           <Box
             sx={{
@@ -88,17 +88,6 @@ export const ModelCard = memo<ModelCardProps>(
               )}
             </Box>
 
-            <Typography
-              variant="caption"
-              sx={{
-                color: "text.secondary",
-                fontSize: "0.7rem",
-                lineHeight: 1.3,
-              }}
-            >
-              Context: {modelInfo.contextWindow.toLocaleString()} tokens
-            </Typography>
-
             <Box
               sx={{
                 display: "flex",
@@ -109,32 +98,6 @@ export const ModelCard = memo<ModelCardProps>(
             >
               {modelInfo.features && (
                 <FeatureIcons features={modelInfo.features} size="small" />
-              )}
-
-              {modelInfo.supportsStreaming && (
-                <Box
-                  sx={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    px: 1,
-                    py: 0.25,
-                    borderRadius: 0.75,
-                    background: "rgba(34, 197, 94, 0.1)",
-                    border: "1px solid rgba(34, 197, 94, 0.2)",
-                    alignSelf: "flex-start",
-                  }}
-                >
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: "rgb(34, 197, 94)",
-                      fontSize: "0.65rem",
-                      fontWeight: 500,
-                    }}
-                  >
-                    Streaming
-                  </Typography>
-                </Box>
               )}
             </Box>
           </Box>
