@@ -115,6 +115,44 @@ const getDesignTokens = (mode: "light" | "dark"): ThemeOptions => ({
   components: {
     MuiCssBaseline: {
       styleOverrides: {
+        html: {
+          background:
+            mode === "dark"
+              ? "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)"
+              : "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)",
+          backgroundAttachment: "fixed",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "100% 100%",
+          minHeight: "100vh",
+          height: "100%",
+          margin: 0,
+          padding: 0,
+        },
+        body: {
+          background:
+            mode === "dark"
+              ? "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)"
+              : "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)",
+          backgroundAttachment: "fixed",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "100% 100%",
+          minHeight: "100vh",
+          height: "100%",
+          margin: 0,
+          padding: 0,
+          overscrollBehavior: "none",
+        },
+        "#root": {
+          background:
+            mode === "dark"
+              ? "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)"
+              : "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)",
+          backgroundAttachment: "fixed",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "100% 100%",
+          minHeight: "100vh",
+          width: "100%",
+        },
         "@global": {
           "@keyframes slideUp": {
             from: { opacity: 0, transform: "translateY(8px)" },

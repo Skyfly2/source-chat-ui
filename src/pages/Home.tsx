@@ -127,13 +127,9 @@ export const Home: React.FC = memo(() => {
   return (
     <Box
       sx={{
-        height: "100vh",
         display: "flex",
-        background: (theme) =>
-          theme.palette.mode === "dark"
-            ? "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)"
-            : "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)",
         minHeight: "100vh",
+        width: "100%",
       }}
     >
       <Sidebar
@@ -173,14 +169,23 @@ export const Home: React.FC = memo(() => {
             display: "flex",
             flexDirection: "column",
             position: "relative",
-            zIndex: 1,
+            overflow: "hidden",
+            paddingBottom: "120px", // Space for fixed input at bottom
           }}
         >
-          {showWelcome ? (
-            <WelcomeScreen show={showWelcome} />
-          ) : (
-            <MessagesList messages={messages} isStreaming={isStreaming} />
-          )}
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: "auto",
+              position: "relative",
+            }}
+          >
+            {showWelcome ? (
+              <WelcomeScreen show={showWelcome} />
+            ) : (
+              <MessagesList messages={messages} isStreaming={isStreaming} />
+            )}
+          </Box>
 
           {(error || modelsError || threadsError) && (
             <Alert
@@ -203,28 +208,37 @@ export const Home: React.FC = memo(() => {
 
         <Box
           sx={{
-            flexShrink: 0,
-            position: "relative",
-            zIndex: 1,
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 1000,
+            paddingLeft: (theme) => {
+              const isDesktop = theme.breakpoints.up("md");
+              return state.sidebar.isOpen && isDesktop ? "280px" : "0";
+            },
+            transition: "padding-left 0.3s ease-out",
           }}
         >
-          <ChatInput
-            onSendMessage={handleSendMessage}
-            disabled={isLoading || modelsLoading || !selectedModel}
-            isStreaming={isStreaming}
-            placeholder={
-              modelsLoading
-                ? "Loading models..."
-                : !selectedModel
-                ? "Select a model to start chatting"
-                : "Message Source Chat..."
-            }
-            models={models}
-            modelDetails={modelDetails}
-            selectedModel={selectedModel}
-            onModelChange={setSelectedModel}
-            modelsLoading={modelsLoading}
-          />
+          <Box sx={{ p: { xs: 1, sm: 2 } }}>
+            <ChatInput
+              onSendMessage={handleSendMessage}
+              disabled={isLoading || modelsLoading || !selectedModel}
+              isStreaming={isStreaming}
+              placeholder={
+                modelsLoading
+                  ? "Loading models..."
+                  : !selectedModel
+                  ? "Select a model to start chatting"
+                  : "Message Source Chat..."
+              }
+              models={models}
+              modelDetails={modelDetails}
+              selectedModel={selectedModel}
+              onModelChange={setSelectedModel}
+              modelsLoading={modelsLoading}
+            />
+          </Box>
         </Box>
       </Box>
     </Box>
