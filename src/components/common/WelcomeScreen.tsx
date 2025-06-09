@@ -28,10 +28,12 @@ export const WelcomeScreen = memo<WelcomeScreenProps>(({ show }) => {
           variant="h4"
           component="h2"
           sx={{
-            fontWeight: 400,
+            fontWeight: 500,
             fontSize: { xs: "1.8rem", sm: "2rem", md: "2.2rem" },
             mb: 2,
             maxWidth: "600px",
+            letterSpacing: "-0.03em",
+            fontFamily: '"Manrope", "Inter", sans-serif',
             background: (theme) =>
               theme.palette.mode === "dark"
                 ? "linear-gradient(135deg, #f1f5f9 0%, #94a3b8 100%)"

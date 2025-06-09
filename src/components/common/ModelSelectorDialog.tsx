@@ -57,8 +57,13 @@ export const ModelSelectorDialog = memo<ModelSelectorDialogProps>(
             }}
           >
             <Typography
-              variant="h6"
-              sx={{ fontWeight: 600, fontSize: "1.1rem" }}
+              variant="h5"
+              sx={{
+                fontWeight: 600,
+                fontSize: "1.3rem",
+                letterSpacing: "-0.025em",
+                fontFamily: '"Manrope", "Inter", sans-serif',
+              }}
             >
               Choose AI Model
             </Typography>

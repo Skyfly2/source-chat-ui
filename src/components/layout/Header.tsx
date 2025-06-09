@@ -13,12 +13,15 @@ export const Header: React.FC = () => {
     <AppBar position="sticky" color="inherit">
       <Toolbar>
         <Typography
-          variant="h6"
+          variant="h5"
           component="h1"
           sx={{
             flexGrow: 1,
-            fontWeight: 600,
+            fontWeight: 700,
             color: "primary.main",
+            fontSize: "1.4rem",
+            letterSpacing: "-0.03em",
+            fontFamily: '"Manrope", "Inter", sans-serif',
           }}
         >
           Source Chat

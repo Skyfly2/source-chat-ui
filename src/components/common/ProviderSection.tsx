@@ -27,10 +27,12 @@ export const ProviderSection = memo<ProviderSectionProps>(
           <Typography
             variant="h6"
             sx={{
-              fontSize: "1rem",
+              fontSize: "1.1rem",
               fontWeight: 600,
               textTransform: "capitalize",
               color: "text.primary",
+              letterSpacing: "-0.02em",
+              fontFamily: '"Manrope", "Inter", sans-serif',
             }}
           >
             {provider}

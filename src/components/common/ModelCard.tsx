@@ -69,9 +69,11 @@ export const ModelCard = memo<ModelCardProps>(
                   variant="subtitle2"
                   sx={{
                     fontWeight: 600,
-                    fontSize: "0.9rem",
+                    fontSize: "0.95rem",
                     color: "text.primary",
                     lineHeight: 1.2,
+                    letterSpacing: "-0.015em",
+                    fontFamily: '"Manrope", "Inter", sans-serif',
                   }}
                 >
                   {modelInfo.displayName}
