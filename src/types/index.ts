@@ -41,12 +41,16 @@ export interface ApiResponse<T = any> {
   threadId?: string;
 }
 
+export interface AIMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
 export interface ChatRequest {
   message: string;
   model?: string;
-  context?: ChatMessage[];
+  context?: AIMessage[];
   promptKey?: string;
-  messageId: string;
   threadId?: string;
 }
 

@@ -21,7 +21,10 @@ export const api = {
     return response.data.data!;
   },
 
-  async streamChat(request: ChatRequest): Promise<ReadableStream<Uint8Array>> {
+  async streamChat(request: ChatRequest): Promise<{
+    stream: ReadableStream<Uint8Array>;
+    threadId?: string;
+  }> {
     // Use fetch for streaming since axios doesn't handle streaming well in browsers
     const response = await fetch(`${API_BASE_URL}/chat/stream`, {
       method: "POST",
@@ -39,6 +42,12 @@ export const api = {
       throw new Error("No response body available");
     }
 
-    return response.body;
+    // Extract thread ID from response headers
+    const threadId = response.headers.get("X-Thread-Id") || undefined;
+
+    return {
+      stream: response.body,
+      threadId,
+    };
   },
 };
