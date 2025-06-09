@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, MessageThread } from "../api";
 
 interface ConversationThread {
@@ -23,18 +23,16 @@ export const useThreads = (): UseThreadsReturn => {
   const [error, setError] = useState<string | null>(null);
 
   // Convert backend threads to conversation format expected by UI
-  const conversations: ConversationThread[] = threads.map((thread) => ({
-    id: thread._id,
-    title: thread.title,
-    lastMessage: "", // We don't have last message from threads API, could be enhanced
-    timestamp: new Date(thread.updatedAt),
-  }));
+  const conversations = useMemo(() => {
+    const result = threads.map((thread) => ({
+      id: thread._id,
+      title: thread.title,
+      lastMessage: "", // We don't have last message from threads API, could be enhanced
+      timestamp: new Date(thread.updatedAt),
+    }));
 
-  // Debug logging for conversations
-  console.log(
-    "💬 Current conversations:",
-    conversations.map((c) => ({ id: c.id, title: c.title }))
-  );
+    return result;
+  }, [threads]);
 
   const fetchThreads = useCallback(async () => {
     try {

@@ -1,5 +1,5 @@
 import { Alert, Box } from "@mui/material";
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { ChatHeader } from "../components/common/ChatHeader";
 import { ChatInput } from "../components/common/ChatInput";
 import { MessagesList } from "../components/common/MessagesList";
@@ -52,6 +52,8 @@ export const Home: React.FC = memo(() => {
     refreshModels: _refreshModels,
   } = useModels();
 
+  const threadsRef = useRef<string[]>([]);
+
   // Sync local conversation ID with global thread state
   useEffect(() => {
     if (
@@ -62,44 +64,29 @@ export const Home: React.FC = memo(() => {
     }
   }, [state.chat.currentThreadId, currentConversationId]);
 
-  // Refresh threads when a new thread is created with retry logic
+  // Refresh threads when a new thread is created (simplified)
   useEffect(() => {
     const refreshIfNewThread = async () => {
-      if (
-        state.chat.currentThreadId &&
-        !conversations.find((conv) => conv.id === state.chat.currentThreadId)
-      ) {
-        // Try multiple times with delay to ensure backend has processed the thread
-        let attempts = 0;
-        const maxAttempts = 3;
-
-        while (attempts < maxAttempts) {
-          await refreshThreads();
-
-          // Wait a moment for state to update, then check again
-          await new Promise((resolve) => setTimeout(resolve, 200));
-
-          // Check if thread now exists in the list after refresh
-          // We need to check the current conversations state, not the stale closure
-          const currentConversations = conversations;
-          const threadExists = currentConversations.find(
-            (conv) => conv.id === state.chat.currentThreadId
+      if (state.chat.currentThreadId) {
+        // Check if we've already refreshed for this thread
+        if (!threadsRef.current.includes(state.chat.currentThreadId)) {
+          console.log(
+            "🔄 Refreshing threads for new thread ID:",
+            state.chat.currentThreadId
           );
-          if (threadExists) {
-            break;
-          }
 
-          // Wait before retry
-          attempts++;
-          if (attempts < maxAttempts) {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-          }
+          // Mark this thread as refreshed
+          threadsRef.current.push(state.chat.currentThreadId);
+
+          // Single refresh with a small delay to ensure backend has processed
+          await new Promise((resolve) => setTimeout(resolve, 300));
+          await refreshThreads();
         }
       }
     };
 
     refreshIfNewThread();
-  }, [state.chat.currentThreadId, conversations, refreshThreads]);
+  }, [state.chat.currentThreadId, refreshThreads]);
 
   const handleSendMessage = useCallback(
     async (message: string) => {
@@ -130,44 +117,16 @@ export const Home: React.FC = memo(() => {
       );
       console.log("📊 After send - resultThreadId:", resultThreadId);
 
-      // If this was a new thread, aggressively refresh to get the updated thread list
+      // If this was a new thread, set the conversation ID and let the useEffect handle refresh
       if (wasNewThread && resultThreadId) {
-        console.log(
-          "🔄 Starting thread refresh for new thread:",
-          resultThreadId
-        );
+        console.log("🔄 Setting thread ID for new thread:", resultThreadId);
 
         // Set the conversation ID immediately
         setCurrentConversationId(resultThreadId);
         console.log("📝 Set currentConversationId to:", resultThreadId);
 
-        // Force multiple refreshes to ensure we get the latest data
-        console.log("🔄 Refresh 1/3...");
-        await refreshThreads();
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        console.log("🔄 Refresh 2/3...");
-        await refreshThreads();
-        await new Promise((resolve) => setTimeout(resolve, 500));
-
-        console.log("🔄 Refresh 3/3...");
-        await refreshThreads();
-
-        console.log("✅ Thread refresh completed");
-        console.log("📊 Final conversations count:", conversations.length);
-        console.log(
-          "📋 Final conversations:",
-          conversations.map((c) => ({ id: c.id, title: c.title }))
-        );
-
-        // Check if our thread is in the list
-        const foundThread = conversations.find(
-          (conv) => conv.id === resultThreadId
-        );
-        console.log("🔍 Thread found in conversations?", !!foundThread);
-        if (foundThread) {
-          console.log("📋 Found thread:", foundThread);
-        }
+        // The useEffect will handle refreshing when currentThreadId changes
+        // No need for aggressive manual refreshing here
       }
     },
     [
