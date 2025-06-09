@@ -45,6 +45,8 @@ export interface ChatRequest {
   model?: string;
   context?: ChatMessage[];
   promptKey?: string;
+  messageId: string;
+  threadId: string;
 }
 
 export interface ModelsResponse {

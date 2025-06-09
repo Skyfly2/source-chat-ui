@@ -17,6 +17,9 @@ export const useChat = (): UseChatReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [threadId, setThreadId] = useState<string>(
+    () => `thread-${crypto.randomUUID()}`
+  );
 
   const sendMessage = useCallback(
     async (message: string, model?: string) => {
@@ -26,7 +29,7 @@ export const useChat = (): UseChatReturn => {
       setIsLoading(true);
 
       const userMessage: ChatMessage = {
-        id: `user-${Date.now()}`,
+        id: `user-${crypto.randomUUID()}`,
         role: "user",
         content: message,
         timestamp: new Date(),
@@ -50,7 +53,9 @@ export const useChat = (): UseChatReturn => {
         const chatRequest: ChatRequest = {
           message,
           model,
-          context: messages.slice(-10), // Send last 10 messages as context
+          context: messages.slice(-10),
+          messageId: userMessage.id,
+          threadId: threadId,
         };
 
         const stream = await api.streamChat(chatRequest);
@@ -92,6 +97,7 @@ export const useChat = (): UseChatReturn => {
   const clearMessages = useCallback(() => {
     setMessages([]);
     setError(null);
+    setThreadId(`thread-${Date.now()}`); // Generate new thread ID for new conversation
   }, []);
 
   const clearError = useCallback(() => {
