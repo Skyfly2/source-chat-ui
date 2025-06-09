@@ -30,13 +30,23 @@ export const useThreads = (): UseThreadsReturn => {
     timestamp: new Date(thread.updatedAt),
   }));
 
+  // Debug logging for conversations
+  console.log(
+    "💬 Current conversations:",
+    conversations.map((c) => ({ id: c.id, title: c.title }))
+  );
+
   const fetchThreads = useCallback(async () => {
     try {
       setError(null);
       setIsLoading(true);
+      console.log("🔄 Fetching threads...");
       const response = await api.getThreads({ limit: 50 }); // Get up to 50 recent threads
-      setThreads(response.threads);
+      console.log("📝 Raw thread response:", response);
+      console.log("📋 Threads received:", response.threads?.length || 0);
+      setThreads(response.threads || []);
     } catch (err) {
+      console.error("❌ Error fetching threads:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch threads");
     } finally {
       setIsLoading(false);

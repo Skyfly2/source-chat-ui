@@ -1,4 +1,4 @@
-import { Add, Menu } from "@mui/icons-material";
+import { Add, Menu, Refresh } from "@mui/icons-material";
 import { Box, IconButton, Typography } from "@mui/material";
 import { memo } from "react";
 
@@ -7,6 +7,7 @@ interface ChatHeaderProps {
   currentConversationTitle?: string;
   onNewThread?: () => void;
   sidebarOpen?: boolean;
+  onRefreshThreads?: () => void;
 }
 
 export const ChatHeader = memo<ChatHeaderProps>(
@@ -15,6 +16,7 @@ export const ChatHeader = memo<ChatHeaderProps>(
     currentConversationTitle,
     onNewThread,
     sidebarOpen = true,
+    onRefreshThreads,
   }) => {
     return (
       <Box
@@ -74,26 +76,49 @@ export const ChatHeader = memo<ChatHeaderProps>(
           </Typography>
         </Box>
 
-        {/* New Thread Button - only show when sidebar is closed */}
-        {!sidebarOpen && onNewThread && (
-          <IconButton
-            onClick={onNewThread}
-            size="small"
-            sx={{
-              color: "text.primary",
-              transition: "all 0.15s ease-out",
-              "&:hover": {
-                background: (theme) =>
-                  theme.palette.mode === "dark"
-                    ? "rgba(255, 255, 255, 0.08)"
-                    : "rgba(0, 0, 0, 0.04)",
-                transform: "scale(1.05)",
-              },
-            }}
-          >
-            <Add fontSize="medium" />
-          </IconButton>
-        )}
+        <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+          {/* Debug Refresh Button */}
+          {onRefreshThreads && (
+            <IconButton
+              onClick={onRefreshThreads}
+              size="small"
+              sx={{
+                color: "text.secondary",
+                transition: "all 0.15s ease-out",
+                "&:hover": {
+                  background: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "rgba(255, 255, 255, 0.08)"
+                      : "rgba(0, 0, 0, 0.04)",
+                  transform: "scale(1.05)",
+                },
+              }}
+            >
+              <Refresh fontSize="small" />
+            </IconButton>
+          )}
+
+          {/* New Thread Button - only show when sidebar is closed */}
+          {!sidebarOpen && onNewThread && (
+            <IconButton
+              onClick={onNewThread}
+              size="small"
+              sx={{
+                color: "text.primary",
+                transition: "all 0.15s ease-out",
+                "&:hover": {
+                  background: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "rgba(255, 255, 255, 0.08)"
+                      : "rgba(0, 0, 0, 0.04)",
+                  transform: "scale(1.05)",
+                },
+              }}
+            >
+              <Add fontSize="medium" />
+            </IconButton>
+          )}
+        </Box>
       </Box>
     );
   }

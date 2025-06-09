@@ -9,7 +9,7 @@ interface UseChatReturn {
   isLoading: boolean;
   isStreaming: boolean;
   error: string | null;
-  sendMessage: (message: string, model?: string) => Promise<void>;
+  sendMessage: (message: string, model?: string) => Promise<string | null>;
   clearMessages: () => void;
   clearError: () => void;
 }
@@ -88,8 +88,8 @@ export const useChat = (): UseChatReturn => {
   );
 
   const sendMessage = useCallback(
-    async (message: string, model?: string) => {
-      if (!message.trim()) return;
+    async (message: string, model?: string): Promise<string | null> => {
+      if (!message.trim()) return null;
 
       setError(null);
       setIsLoading(true);
@@ -148,6 +148,9 @@ export const useChat = (): UseChatReturn => {
         const { stream, threadId: serverThreadId } = await api.streamChat(
           chatRequest
         );
+        console.log("🔍 API response - serverThreadId:", serverThreadId);
+        console.log("🔍 Current threadId before check:", threadId);
+
         const reader = stream.getReader();
         const decoder = new TextDecoder();
 
@@ -155,6 +158,7 @@ export const useChat = (): UseChatReturn => {
 
         // If server provided a thread ID and we don't have one set, set it immediately
         if (serverThreadId && !threadId) {
+          console.log("🚀 Setting new thread ID:", serverThreadId);
           setCurrentThread(serverThreadId);
           threadId = serverThreadId; // Update local variable
 
@@ -162,6 +166,8 @@ export const useChat = (): UseChatReturn => {
           updateMessages(serverThreadId, messagesWithAssistant);
           setTempMessages([]); // Clear temporary messages
         }
+
+        console.log("🔍 Final threadId after processing:", threadId);
 
         while (true) {
           const { done, value } = await reader.read();
@@ -188,6 +194,7 @@ export const useChat = (): UseChatReturn => {
         }
 
         setStreaming(false);
+        return threadId; // Return the thread ID
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
         setIsLoading(false);
@@ -203,6 +210,7 @@ export const useChat = (): UseChatReturn => {
           // For new conversations, remove the assistant message from temp messages
           setTempMessages((prev) => prev.slice(0, -1));
         }
+        return null; // Return null on error
       }
     },
     [
