@@ -55,7 +55,20 @@ export const ChatInput = memo<ChatInputProps>(
     return (
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {/* Model Selector Row */}
-        <Box sx={{ display: "flex", justifyContent: "center" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-start",
+            width: {
+              xs: "100%",
+              sm: "95%",
+              md: "600px",
+              lg: "600px",
+              xl: "600px",
+            },
+            mx: "auto",
+          }}
+        >
           <ModelSelectorPopup
             models={models}
             modelDetails={modelDetails}
