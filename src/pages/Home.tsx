@@ -161,6 +161,8 @@ export const Home: React.FC = memo(() => {
         <ChatHeader
           onToggleSidebar={globalToggleSidebar}
           currentConversationTitle={currentConversation?.title || undefined}
+          onNewThread={handleNewChat}
+          sidebarOpen={state.sidebar.isOpen}
         />
 
         <Box
