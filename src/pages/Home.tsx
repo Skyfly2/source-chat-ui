@@ -33,7 +33,7 @@ export const Home: React.FC = memo(() => {
     isLoading: modelsLoading,
     error: modelsError,
     setSelectedModel,
-    refreshModels,
+    refreshModels: _refreshModels,
   } = useModels();
 
   const generateConversationTitle = useCallback((message: string): string => {

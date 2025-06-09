@@ -41,7 +41,7 @@ export const Sidebar = memo<SidebarProps>(
     onNewChat,
     onSelectConversation,
     onDeleteConversation,
-    onRenameConversation,
+    onRenameConversation: _onRenameConversation,
   }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
