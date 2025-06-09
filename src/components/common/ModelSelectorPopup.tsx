@@ -1,5 +1,6 @@
 import { Box } from "@mui/material";
-import { memo, useState } from "react";
+import { memo } from "react";
+import { useChatState } from "../../hooks/useChatState";
 import { ModelInfo } from "../../types";
 import { ModelSelectorButton } from "./ModelSelectorButton";
 import { ModelSelectorDialog } from "./ModelSelectorDialog";
@@ -20,7 +21,8 @@ export const ModelSelectorPopup = memo<ModelSelectorPopupProps>(
     onModelChange,
     disabled = false,
   }) => {
-    const [open, setOpen] = useState(false);
+    const { state, setModelSelectorOpen } = useChatState();
+    const open = state.ui.modelSelectorOpen;
 
     const getModelInfo = (modelName: string): ModelInfo | undefined => {
       return modelDetails.find((detail) => detail.name === modelName);
@@ -48,7 +50,7 @@ export const ModelSelectorPopup = memo<ModelSelectorPopupProps>(
 
     const handleModelSelect = (modelName: string) => {
       onModelChange(modelName);
-      setOpen(false);
+      setModelSelectorOpen(false);
     };
 
     const selectedModelInfo = getSelectedModelInfo();
@@ -61,13 +63,13 @@ export const ModelSelectorPopup = memo<ModelSelectorPopupProps>(
             selectedModel={selectedModel}
             selectedModelInfo={selectedModelInfo}
             disabled={disabled}
-            onClick={() => setOpen(true)}
+            onClick={() => setModelSelectorOpen(true)}
           />
         </Box>
 
         <ModelSelectorDialog
           open={open}
-          onClose={() => setOpen(false)}
+          onClose={() => setModelSelectorOpen(false)}
           modelGroups={modelGroups}
           selectedModel={selectedModel}
           onModelSelect={handleModelSelect}

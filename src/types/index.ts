@@ -49,6 +49,8 @@ export interface ChatRequest {
   threadId: string;
 }
 
+export * from "./state";
+
 export interface ModelsResponse {
   models: string[];
   modelDetails: ModelInfo[];

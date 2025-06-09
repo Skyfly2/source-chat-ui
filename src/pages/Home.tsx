@@ -6,15 +6,22 @@ import { MessagesList } from "../components/common/MessagesList";
 import { Sidebar } from "../components/common/Sidebar";
 import { WelcomeScreen } from "../components/common/WelcomeScreen";
 import { useChat } from "../hooks/useChat";
+import { useChatState } from "../hooks/useChatState";
 import { useModels } from "../hooks/useModels";
 import { ConversationThread } from "../types";
 
 export const Home: React.FC = memo(() => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [conversations, setConversations] = useState<ConversationThread[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<
     string | null
   >(null);
+
+  const {
+    state,
+    toggleSidebar: globalToggleSidebar,
+    setSidebarOpen,
+    setSelectedModel: globalSetSelectedModel,
+  } = useChatState();
 
   const {
     messages,
@@ -84,12 +91,15 @@ export const Home: React.FC = memo(() => {
     clearMessages();
     setCurrentConversationId(null);
     setSidebarOpen(false);
-  }, [clearMessages]);
+  }, [clearMessages, setSidebarOpen]);
 
-  const handleSelectConversation = useCallback((id: string) => {
-    setCurrentConversationId(id);
-    setSidebarOpen(false);
-  }, []);
+  const handleSelectConversation = useCallback(
+    (id: string) => {
+      setCurrentConversationId(id);
+      setSidebarOpen(false);
+    },
+    [setSidebarOpen]
+  );
 
   const handleDeleteConversation = useCallback(
     (id: string) => {
@@ -112,10 +122,6 @@ export const Home: React.FC = memo(() => {
     []
   );
 
-  const toggleSidebar = useCallback(() => {
-    setSidebarOpen((prev) => !prev);
-  }, []);
-
   const currentConversation = conversations.find(
     (conv) => conv.id === currentConversationId
   );
@@ -135,7 +141,7 @@ export const Home: React.FC = memo(() => {
       }}
     >
       <Sidebar
-        open={sidebarOpen}
+        open={state.sidebar.isOpen}
         onClose={() => setSidebarOpen(false)}
         conversations={conversations}
         currentConversationId={currentConversationId || undefined}
@@ -153,12 +159,12 @@ export const Home: React.FC = memo(() => {
           transition: "margin-left 0.3s ease-out",
           marginLeft: (theme) => {
             const isDesktop = theme.breakpoints.up("md");
-            return sidebarOpen && isDesktop ? "280px" : "0";
+            return state.sidebar.isOpen && isDesktop ? "280px" : "0";
           },
         }}
       >
         <ChatHeader
-          onToggleSidebar={toggleSidebar}
+          onToggleSidebar={globalToggleSidebar}
           currentConversationTitle={currentConversation?.title || undefined}
         />
 

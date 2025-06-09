@@ -59,9 +59,18 @@ src/
 ├── utils/            # Utility functions
 ├── types/            # TypeScript type definitions
 ├── theme/            # MUI theme configuration
-└── api/              # Axios-based API request functions
+├── context/          # React Context providers for global state
+├── api/              # Axios-based API request functions
 └── queries/          # Queries that implement the api functions to be used with hooks
 ```
+
+## Global State Management
+
+- Use React Context + useReducer for global state (no Redux)
+- State is organized into subobjects: `sidebar`, `chat`, `ui`
+- Use `useChatState()` hook for accessing and updating global state
+- Local `useState` is still appropriate for component-specific state that doesn't need to be shared
+- Global state includes: sidebar open/close, selected model, theme, modal states, etc.
 
 # 🧠 AI Chat App Design Guide (React Router + Material UI)
 

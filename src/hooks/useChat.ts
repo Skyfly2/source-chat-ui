@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import { api } from "../api";
 import { ChatMessage, ChatRequest } from "../types";
+import { generateObjectId } from "../utils/objectId";
 
 interface UseChatReturn {
   messages: ChatMessage[];
@@ -17,9 +18,7 @@ export const useChat = (): UseChatReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [threadId, setThreadId] = useState<string>(
-    () => `thread-${crypto.randomUUID()}`
-  );
+  const [threadId, setThreadId] = useState<string>(() => generateObjectId());
 
   const sendMessage = useCallback(
     async (message: string, model?: string) => {
@@ -29,7 +28,7 @@ export const useChat = (): UseChatReturn => {
       setIsLoading(true);
 
       const userMessage: ChatMessage = {
-        id: `user-${crypto.randomUUID()}`,
+        id: generateObjectId(),
         role: "user",
         content: message,
         timestamp: new Date(),
@@ -39,7 +38,7 @@ export const useChat = (): UseChatReturn => {
 
       try {
         const assistantMessage: ChatMessage = {
-          id: `assistant-${Date.now()}`,
+          id: generateObjectId(),
           role: "assistant",
           content: "",
           timestamp: new Date(),
@@ -91,13 +90,13 @@ export const useChat = (): UseChatReturn => {
         setMessages((prev) => prev.slice(0, -1));
       }
     },
-    [messages]
+    [messages, threadId]
   );
 
   const clearMessages = useCallback(() => {
     setMessages([]);
     setError(null);
-    setThreadId(`thread-${Date.now()}`); // Generate new thread ID for new conversation
+    setThreadId(generateObjectId()); // Generate new thread ID for new conversation
   }, []);
 
   const clearError = useCallback(() => {
