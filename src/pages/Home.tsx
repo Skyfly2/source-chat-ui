@@ -196,24 +196,22 @@ export const Home: React.FC = memo(() => {
             </Box>
           )}
 
-          <WelcomeScreen
-            show={showWelcome}
-            models={models}
-            modelDetails={modelDetails}
-            selectedModel={selectedModel}
-            onModelChange={setSelectedModel}
-            modelsLoading={modelsLoading}
-          />
+          <WelcomeScreen show={showWelcome} />
 
           {hasMessages && (
             <MessagesList messages={messages} isStreaming={isStreaming} />
           )}
 
-          <Box sx={{ py: 2, px: { xs: 2, sm: 3, md: 4 } }}>
+          <Box sx={{ py: 2, px: { xs: 0.5, sm: 1, md: 1 } }}>
             <ChatInput
               onSendMessage={handleSendMessage}
               disabled={modelsLoading || !selectedModel}
               isStreaming={isStreaming}
+              models={models}
+              modelDetails={modelDetails}
+              selectedModel={selectedModel}
+              onModelChange={setSelectedModel}
+              modelsLoading={modelsLoading}
               placeholder={
                 modelsLoading
                   ? "Loading models..."
