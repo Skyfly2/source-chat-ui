@@ -4,5 +4,6 @@ export { ChatHeader } from "./ChatHeader";
 export { ChatInput } from "./ChatInput";
 export { MessagesList } from "./MessagesList";
 export { ModelSelector } from "./ModelSelector";
+export { Sidebar } from "./Sidebar";
 export { UserMessage } from "./UserMessage";
 export { WelcomeScreen } from "./WelcomeScreen";

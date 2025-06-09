@@ -6,6 +6,14 @@ export interface ChatMessage {
   model?: string;
 }
 
+export interface ConversationThread {
+  id: string;
+  title: string;
+  lastMessage: string;
+  timestamp: Date;
+  messages?: ChatMessage[];
+}
+
 export interface ModelInfo {
   name: string;
   displayName: string;
