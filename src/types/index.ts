@@ -38,6 +38,7 @@ export interface ApiResponse<T = any> {
   data?: T;
   message?: string;
   error?: string;
+  threadId?: string;
 }
 
 export interface ChatRequest {
@@ -46,7 +47,7 @@ export interface ChatRequest {
   context?: ChatMessage[];
   promptKey?: string;
   messageId: string;
-  threadId: string;
+  threadId?: string;
 }
 
 export * from "./state";

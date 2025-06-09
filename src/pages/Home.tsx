@@ -21,6 +21,7 @@ export const Home: React.FC = memo(() => {
     toggleSidebar: globalToggleSidebar,
     setSidebarOpen,
     setSelectedModel: globalSetSelectedModel,
+    setCurrentThread,
   } = useChatState();
 
   const {
@@ -53,6 +54,13 @@ export const Home: React.FC = memo(() => {
     async (message: string) => {
       let conversationId = currentConversationId;
 
+      // If we don't have a conversation but have a thread ID from global state, use that
+      if (!conversationId && state.chat.currentThreadId) {
+        conversationId = state.chat.currentThreadId;
+        setCurrentConversationId(conversationId);
+      }
+
+      // Create new conversation if we don't have one and no messages
       if (!conversationId && !messages.length) {
         conversationId = `conv_${Date.now()}`;
         const newConversation: ConversationThread = {
@@ -68,7 +76,20 @@ export const Home: React.FC = memo(() => {
 
       await sendMessage(message, selectedModel);
 
-      if (conversationId) {
+      // After sending, if we got a thread ID from the server and don't have a conversation ID yet,
+      // create the conversation with the server-provided thread ID
+      if (state.chat.currentThreadId && !currentConversationId) {
+        const serverThreadId = state.chat.currentThreadId;
+        const newConversation: ConversationThread = {
+          id: serverThreadId,
+          title: generateConversationTitle(message),
+          lastMessage: message,
+          timestamp: new Date(),
+          messages: [],
+        };
+        setConversations((prev) => [newConversation, ...prev]);
+        setCurrentConversationId(serverThreadId);
+      } else if (conversationId) {
         setConversations((prev) =>
           prev.map((conv) =>
             conv.id === conversationId
@@ -84,11 +105,12 @@ export const Home: React.FC = memo(() => {
       currentConversationId,
       messages.length,
       generateConversationTitle,
+      state.chat.currentThreadId,
     ]
   );
 
   const handleNewChat = useCallback(() => {
-    clearMessages();
+    clearMessages(); // This will also clear the current thread in global state
     setCurrentConversationId(null);
     setSidebarOpen(false);
   }, [clearMessages, setSidebarOpen]);
@@ -96,9 +118,10 @@ export const Home: React.FC = memo(() => {
   const handleSelectConversation = useCallback(
     (id: string) => {
       setCurrentConversationId(id);
+      setCurrentThread(id); // Set the thread ID in global state
       setSidebarOpen(false);
     },
-    [setSidebarOpen]
+    [setSidebarOpen, setCurrentThread]
   );
 
   const handleDeleteConversation = useCallback(

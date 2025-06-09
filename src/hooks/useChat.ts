@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { api } from "../api";
 import { ChatMessage, ChatRequest } from "../types";
 import { generateObjectId } from "../utils/objectId";
+import { useChatState } from "./useChatState";
 
 interface UseChatReturn {
   messages: ChatMessage[];
@@ -18,7 +19,9 @@ export const useChat = (): UseChatReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [isStreaming, setIsStreaming] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [threadId, setThreadId] = useState<string>(() => generateObjectId());
+
+  const { state, setCurrentThread, setStreaming } = useChatState();
+  const currentThreadId = state.chat.currentThreadId;
 
   const sendMessage = useCallback(
     async (message: string, model?: string) => {
@@ -26,6 +29,7 @@ export const useChat = (): UseChatReturn => {
 
       setError(null);
       setIsLoading(true);
+      setStreaming(true);
 
       const userMessage: ChatMessage = {
         id: generateObjectId(),
@@ -47,21 +51,25 @@ export const useChat = (): UseChatReturn => {
 
         setMessages((prev) => [...prev, assistantMessage]);
         setIsLoading(false);
-        setIsStreaming(true);
 
         const chatRequest: ChatRequest = {
           message,
           model,
           context: messages.slice(-10),
           messageId: userMessage.id,
-          threadId: threadId,
         };
+
+        // Only include threadId if we have an existing thread
+        if (currentThreadId) {
+          chatRequest.threadId = currentThreadId;
+        }
 
         const stream = await api.streamChat(chatRequest);
         const reader = stream.getReader();
         const decoder = new TextDecoder();
 
         let accumulatedContent = "";
+        let serverThreadId: string | null = null;
 
         while (true) {
           const { done, value } = await reader.read();
@@ -69,6 +77,27 @@ export const useChat = (): UseChatReturn => {
           if (done) break;
 
           const chunk = decoder.decode(value, { stream: true });
+
+          // Check if this chunk contains thread ID metadata (assuming server sends it)
+          // This is a simple approach - you might need to adjust based on your server's format
+          if (chunk.includes('"threadId"') && !serverThreadId) {
+            try {
+              const lines = chunk.split("\n");
+              for (const line of lines) {
+                if (line.startsWith("data: ") && line.includes("threadId")) {
+                  const jsonStr = line.replace("data: ", "");
+                  const data = JSON.parse(jsonStr);
+                  if (data.threadId) {
+                    serverThreadId = data.threadId;
+                    break;
+                  }
+                }
+              }
+            } catch (e) {
+              // Continue if parsing fails
+            }
+          }
+
           accumulatedContent += chunk;
 
           setMessages((prev) =>
@@ -80,24 +109,31 @@ export const useChat = (): UseChatReturn => {
           );
         }
 
+        // If we got a threadId from server and don't have one set, set it
+        if (serverThreadId && !currentThreadId) {
+          setCurrentThread(serverThreadId);
+        }
+
         setIsStreaming(false);
+        setStreaming(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
         setIsLoading(false);
         setIsStreaming(false);
+        setStreaming(false);
 
         // Remove the incomplete assistant message on error
         setMessages((prev) => prev.slice(0, -1));
       }
     },
-    [messages, threadId]
+    [messages, currentThreadId, setCurrentThread, setStreaming]
   );
 
   const clearMessages = useCallback(() => {
     setMessages([]);
     setError(null);
-    setThreadId(generateObjectId()); // Generate new thread ID for new conversation
-  }, []);
+    setCurrentThread(null); // Clear the current thread for new conversation
+  }, [setCurrentThread]);
 
   const clearError = useCallback(() => {
     setError(null);
@@ -106,7 +142,7 @@ export const useChat = (): UseChatReturn => {
   return {
     messages,
     isLoading,
-    isStreaming,
+    isStreaming: state.chat.isStreaming,
     error,
     sendMessage,
     clearMessages,
