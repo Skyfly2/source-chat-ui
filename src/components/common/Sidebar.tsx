@@ -1,4 +1,4 @@
-import { Add, Chat, Delete, Edit, MoreVert } from "@mui/icons-material";
+import { Add, Close } from "@mui/icons-material";
 import {
   Box,
   Button,
@@ -7,15 +7,12 @@ import {
   List,
   ListItem,
   ListItemButton,
-  ListItemIcon,
   ListItemText,
-  Menu,
-  MenuItem,
   Typography,
   useMediaQuery,
   useTheme,
 } from "@mui/material";
-import React, { memo, useState } from "react";
+import { memo } from "react";
 
 interface ConversationThread {
   id: string;
@@ -48,46 +45,6 @@ export const Sidebar = memo<SidebarProps>(
   }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
-    const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
-    const [selectedConversation, setSelectedConversation] = useState<
-      string | null
-    >(null);
-
-    const handleMenuOpen = (
-      event: React.MouseEvent<HTMLElement>,
-      conversationId: string
-    ) => {
-      event.stopPropagation();
-      setMenuAnchor(event.currentTarget);
-      setSelectedConversation(conversationId);
-    };
-
-    const handleMenuClose = () => {
-      setMenuAnchor(null);
-      setSelectedConversation(null);
-    };
-
-    const handleDelete = () => {
-      if (selectedConversation) {
-        onDeleteConversation(selectedConversation);
-      }
-      handleMenuClose();
-    };
-
-    const handleRename = () => {
-      if (selectedConversation) {
-        const conversation = conversations.find(
-          (c) => c.id === selectedConversation
-        );
-        if (conversation) {
-          const newTitle = prompt("Rename conversation:", conversation.title);
-          if (newTitle && newTitle.trim()) {
-            onRenameConversation(selectedConversation, newTitle.trim());
-          }
-        }
-      }
-      handleMenuClose();
-    };
 
     const sidebarContent = (
       <Box
@@ -98,8 +55,8 @@ export const Sidebar = memo<SidebarProps>(
           flexDirection: "column",
           background: (theme) =>
             theme.palette.mode === "dark"
-              ? "linear-gradient(135deg, #1e293b 0%, #0f172a 100%)"
-              : "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)",
+              ? "linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 1) 100%)"
+              : "linear-gradient(135deg, rgba(241, 245, 249, 0.95) 0%, rgba(226, 232, 240, 1) 100%)",
           borderRight: "1px solid",
           borderColor: (theme) =>
             theme.palette.mode === "dark"
@@ -114,19 +71,33 @@ export const Sidebar = memo<SidebarProps>(
             startIcon={<Add />}
             onClick={onNewChat}
             sx={{
-              py: 1.5,
+              py: 1,
               px: 2,
               borderRadius: 2,
-              background: "linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)",
-              color: "white",
+              background: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.9) 100%)"
+                  : "linear-gradient(135deg, rgba(241, 245, 249, 0.8) 0%, rgba(226, 232, 240, 0.9) 100%)",
+              color: "text.primary",
               fontWeight: 500,
-              fontSize: "0.95rem",
+              fontSize: "0.9rem",
               textTransform: "none",
+              border: "1px solid",
+              borderColor: (theme) =>
+                theme.palette.mode === "dark"
+                  ? "rgba(148, 163, 184, 0.15)"
+                  : "rgba(148, 163, 184, 0.2)",
               transition: "all 0.15s ease-out",
               "&:hover": {
-                background: "linear-gradient(135deg, #3730a3 0%, #4f46e5 100%)",
+                background: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 1) 100%)"
+                    : "linear-gradient(135deg, rgba(241, 245, 249, 0.9) 0%, rgba(226, 232, 240, 1) 100%)",
+                borderColor: (theme) =>
+                  theme.palette.mode === "dark"
+                    ? "rgba(148, 163, 184, 0.25)"
+                    : "rgba(148, 163, 184, 0.3)",
                 transform: "translateY(-1px)",
-                boxShadow: "0 4px 12px rgba(79, 70, 229, 0.3)",
               },
             }}
           >
@@ -165,49 +136,48 @@ export const Sidebar = memo<SidebarProps>(
                     "&.Mui-selected": {
                       background: (theme) =>
                         theme.palette.mode === "dark"
-                          ? "linear-gradient(135deg, rgba(79, 70, 229, 0.2) 0%, rgba(99, 102, 241, 0.15) 100%)"
-                          : "linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(99, 102, 241, 0.08) 100%)",
+                          ? "rgba(148, 163, 184, 0.15)"
+                          : "rgba(148, 163, 184, 0.1)",
                       "&:hover": {
                         background: (theme) =>
                           theme.palette.mode === "dark"
-                            ? "linear-gradient(135deg, rgba(79, 70, 229, 0.25) 0%, rgba(99, 102, 241, 0.2) 100%)"
-                            : "linear-gradient(135deg, rgba(79, 70, 229, 0.15) 0%, rgba(99, 102, 241, 0.12) 100%)",
+                            ? "rgba(148, 163, 184, 0.2)"
+                            : "rgba(148, 163, 184, 0.15)",
                       },
                     },
                     "&:hover": {
                       background: (theme) =>
                         theme.palette.mode === "dark"
-                          ? "linear-gradient(135deg, rgba(148, 163, 184, 0.1) 0%, rgba(148, 163, 184, 0.05) 100%)"
-                          : "linear-gradient(135deg, rgba(148, 163, 184, 0.08) 0%, rgba(148, 163, 184, 0.03) 100%)",
+                          ? "rgba(148, 163, 184, 0.08)"
+                          : "rgba(148, 163, 184, 0.05)",
                     },
                   }}
                 >
-                  <ListItemIcon sx={{ minWidth: 32, color: "text.secondary" }}>
-                    <Chat fontSize="small" />
-                  </ListItemIcon>
                   <ListItemText
                     primary={conversation.title}
-                    secondary={conversation.lastMessage}
                     primaryTypographyProps={{
                       fontSize: "0.9rem",
                       fontWeight: 500,
                       noWrap: true,
                     }}
-                    secondaryTypographyProps={{
-                      fontSize: "0.75rem",
-                      noWrap: true,
-                      sx: { opacity: 0.7 },
-                    }}
                   />
                   <IconButton
                     size="small"
-                    onClick={(e) => handleMenuOpen(e, conversation.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDeleteConversation(conversation.id);
+                    }}
                     sx={{
-                      opacity: 0.6,
-                      "&:hover": { opacity: 1 },
+                      opacity: 0.5,
+                      color: "text.secondary",
+                      "&:hover": {
+                        opacity: 1,
+                        color: "error.main",
+                        background: "rgba(239, 68, 68, 0.05)",
+                      },
                     }}
                   >
-                    <MoreVert fontSize="small" />
+                    <Close fontSize="small" />
                   </IconButton>
                 </ListItemButton>
               </ListItem>
@@ -233,59 +203,23 @@ export const Sidebar = memo<SidebarProps>(
     );
 
     return (
-      <>
-        <Drawer
-          anchor="left"
-          open={open}
-          onClose={onClose}
-          variant={isMobile ? "temporary" : "persistent"}
-          sx={{
-            "& .MuiDrawer-paper": {
-              border: "none",
-              boxShadow: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "8px 0 32px rgba(0, 0, 0, 0.4)"
-                  : "8px 0 32px rgba(0, 0, 0, 0.1)",
-            },
-          }}
-        >
-          {sidebarContent}
-        </Drawer>
-
-        {/* Context Menu */}
-        <Menu
-          anchorEl={menuAnchor}
-          open={Boolean(menuAnchor)}
-          onClose={handleMenuClose}
-          PaperProps={{
-            sx: {
-              borderRadius: 2,
-              border: "1px solid",
-              borderColor: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "rgba(148, 163, 184, 0.15)"
-                  : "rgba(148, 163, 184, 0.2)",
-              background: (theme) =>
-                theme.palette.mode === "dark"
-                  ? "linear-gradient(135deg, rgba(30, 41, 59, 0.95) 0%, rgba(51, 65, 85, 0.98) 100%)"
-                  : "linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 0.98) 100%)",
-              backdropFilter: "blur(12px)",
-            },
-          }}
-        >
-          <MenuItem onClick={handleRename} sx={{ fontSize: "0.9rem" }}>
-            <Edit fontSize="small" sx={{ mr: 1.5 }} />
-            Rename
-          </MenuItem>
-          <MenuItem
-            onClick={handleDelete}
-            sx={{ fontSize: "0.9rem", color: "error.main" }}
-          >
-            <Delete fontSize="small" sx={{ mr: 1.5 }} />
-            Delete
-          </MenuItem>
-        </Menu>
-      </>
+      <Drawer
+        anchor="left"
+        open={open}
+        onClose={onClose}
+        variant={isMobile ? "temporary" : "persistent"}
+        sx={{
+          "& .MuiDrawer-paper": {
+            border: "none",
+            boxShadow: (theme) =>
+              theme.palette.mode === "dark"
+                ? "8px 0 32px rgba(0, 0, 0, 0.4)"
+                : "8px 0 32px rgba(0, 0, 0, 0.1)",
+          },
+        }}
+      >
+        {sidebarContent}
+      </Drawer>
     );
   }
 );
