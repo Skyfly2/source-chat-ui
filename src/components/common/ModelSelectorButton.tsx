@@ -2,6 +2,7 @@ import { ExpandMore } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import { memo } from "react";
 import { ModelInfo } from "../../types";
+import { ProviderLogo } from "./ProviderLogo";
 
 interface ModelSelectorButtonProps {
   selectedModel: string;
@@ -54,6 +55,9 @@ export const ModelSelectorButton = memo<ModelSelectorButtonProps>(
             maxWidth: "120px",
           }}
         >
+          {selectedModelInfo && (
+            <ProviderLogo provider={selectedModelInfo.provider} size={16} />
+          )}
           <Typography
             variant="body2"
             sx={{

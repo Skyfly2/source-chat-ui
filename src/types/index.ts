@@ -14,6 +14,15 @@ export interface ConversationThread {
   messages?: ChatMessage[];
 }
 
+export interface ModelFeatures {
+  reasoning?: boolean;
+  internet?: boolean;
+  vision?: boolean;
+  attachments?: boolean;
+  codeExecution?: boolean;
+  multimodal?: boolean;
+}
+
 export interface ModelInfo {
   name: string;
   displayName: string;
@@ -21,6 +30,7 @@ export interface ModelInfo {
   maxTokens: number;
   contextWindow: number;
   supportsStreaming: boolean;
+  features?: ModelFeatures;
 }
 
 export interface ApiResponse<T = any> {

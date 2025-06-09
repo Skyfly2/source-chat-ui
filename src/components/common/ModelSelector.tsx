@@ -11,6 +11,7 @@ import {
 } from "@mui/material";
 import { memo } from "react";
 import { ModelInfo } from "../../types";
+import { ProviderLogo } from "./ProviderLogo";
 
 interface ModelSelectorProps {
   models: string[];
@@ -151,13 +152,17 @@ export const ModelSelector = memo<ModelSelectorProps>(
             const modelInfo = getModelInfo(value);
             return (
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Psychology
-                  sx={{
-                    fontSize: 16,
-                    color: "primary.main",
-                    animation: "pulse 2s ease-in-out infinite",
-                  }}
-                />
+                {modelInfo ? (
+                  <ProviderLogo provider={modelInfo.provider} size={16} />
+                ) : (
+                  <Psychology
+                    sx={{
+                      fontSize: 16,
+                      color: "primary.main",
+                      animation: "pulse 2s ease-in-out infinite",
+                    }}
+                  />
+                )}
                 <Typography
                   variant="body2"
                   sx={{
@@ -187,13 +192,17 @@ export const ModelSelector = memo<ModelSelectorProps>(
                     width: "100%",
                   }}
                 >
-                  <Psychology
-                    sx={{
-                      fontSize: 16,
-                      color: "primary.main",
-                      flexShrink: 0,
-                    }}
-                  />
+                  {modelInfo ? (
+                    <ProviderLogo provider={modelInfo.provider} size={16} />
+                  ) : (
+                    <Psychology
+                      sx={{
+                        fontSize: 16,
+                        color: "primary.main",
+                        flexShrink: 0,
+                      }}
+                    />
+                  )}
                   <Box sx={{ flex: 1 }}>
                     <Typography
                       variant="body2"

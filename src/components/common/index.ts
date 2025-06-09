@@ -2,6 +2,7 @@ export { AssistantMessage } from "./AssistantMessage";
 export { ChatBubble } from "./ChatBubble";
 export { ChatHeader } from "./ChatHeader";
 export { ChatInput } from "./ChatInput";
+export { FeatureIcons } from "./FeatureIcons";
 export { MessagesList } from "./MessagesList";
 export { ModelCard } from "./ModelCard";
 export { ModelSelector } from "./ModelSelector";

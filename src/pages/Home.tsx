@@ -202,7 +202,15 @@ export const Home: React.FC = memo(() => {
             <MessagesList messages={messages} isStreaming={isStreaming} />
           )}
 
-          <Box sx={{ py: 2, px: { xs: 0.5, sm: 1, md: 1 } }}>
+          <Box
+            sx={{
+              py: 2,
+              px: { xs: 0.5, sm: 1, md: 1 },
+              flexShrink: 0,
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
             <ChatInput
               onSendMessage={handleSendMessage}
               disabled={modelsLoading || !selectedModel}

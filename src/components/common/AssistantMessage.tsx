@@ -12,6 +12,7 @@ interface AssistantMessageProps {
 
 export const AssistantMessage = memo<AssistantMessageProps>(
   ({ content, isStreaming }) => {
+    const displayContent = isStreaming && content ? content + "▎" : content;
     return (
       <Box
         sx={{
@@ -160,7 +161,7 @@ export const AssistantMessage = memo<AssistantMessageProps>(
                 ),
               }}
             >
-              {content}
+              {displayContent}
             </ReactMarkdown>
           ) : isStreaming ? (
             <Typography
@@ -170,24 +171,6 @@ export const AssistantMessage = memo<AssistantMessageProps>(
               Thinking...
             </Typography>
           ) : null}
-
-          {/* Streaming indicator - inline at end of text */}
-          {isStreaming && content && (
-            <Box
-              component="span"
-              sx={{
-                display: "inline-block",
-                width: 2,
-                height: 18,
-                bgcolor: "primary.main",
-                ml: 0.5,
-                borderRadius: 1,
-                animation: "pulse 1.2s ease-in-out infinite",
-                verticalAlign: "text-bottom",
-                willChange: "opacity",
-              }}
-            />
-          )}
         </Box>
       </Box>
     );

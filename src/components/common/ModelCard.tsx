@@ -2,6 +2,8 @@ import { Check } from "@mui/icons-material";
 import { Box, Card, CardActionArea, Typography } from "@mui/material";
 import { memo } from "react";
 import { ModelInfo } from "../../types";
+import { FeatureIcons } from "./FeatureIcons";
+import { ProviderLogo } from "./ProviderLogo";
 
 interface ModelCardProps {
   modelInfo: ModelInfo;
@@ -43,37 +45,44 @@ export const ModelCard = memo<ModelCardProps>(
       >
         <CardActionArea
           onClick={() => onSelect(modelInfo.name)}
-          sx={{ p: 2, minHeight: 100 }}
+          sx={{ p: 2, minHeight: 120 }}
         >
           <Box
             sx={{
               display: "flex",
               flexDirection: "column",
-              gap: 1,
+              gap: 1.5,
+              height: "100%",
             }}
           >
             <Box
               sx={{
                 display: "flex",
-                alignItems: "center",
+                alignItems: "flex-start",
                 justifyContent: "space-between",
+                gap: 1,
               }}
             >
-              <Typography
-                variant="subtitle2"
-                sx={{
-                  fontWeight: 600,
-                  fontSize: "0.9rem",
-                  color: "text.primary",
-                }}
-              >
-                {modelInfo.displayName}
-              </Typography>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <ProviderLogo provider={modelInfo.provider} size={24} />
+                <Typography
+                  variant="subtitle2"
+                  sx={{
+                    fontWeight: 600,
+                    fontSize: "0.9rem",
+                    color: "text.primary",
+                    lineHeight: 1.2,
+                  }}
+                >
+                  {modelInfo.displayName}
+                </Typography>
+              </Box>
               {isSelected && (
                 <Check
                   sx={{
                     color: "primary.main",
                     fontSize: 18,
+                    flexShrink: 0,
                   }}
                 />
               )}
@@ -90,31 +99,44 @@ export const ModelCard = memo<ModelCardProps>(
               Context: {modelInfo.contextWindow.toLocaleString()} tokens
             </Typography>
 
-            {modelInfo.supportsStreaming && (
-              <Box
-                sx={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  px: 1,
-                  py: 0.25,
-                  borderRadius: 0.75,
-                  background: "rgba(34, 197, 94, 0.1)",
-                  border: "1px solid rgba(34, 197, 94, 0.2)",
-                  alignSelf: "flex-start",
-                }}
-              >
-                <Typography
-                  variant="caption"
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                gap: 1,
+                mt: "auto",
+              }}
+            >
+              {modelInfo.features && (
+                <FeatureIcons features={modelInfo.features} size="small" />
+              )}
+
+              {modelInfo.supportsStreaming && (
+                <Box
                   sx={{
-                    color: "rgb(34, 197, 94)",
-                    fontSize: "0.65rem",
-                    fontWeight: 500,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    px: 1,
+                    py: 0.25,
+                    borderRadius: 0.75,
+                    background: "rgba(34, 197, 94, 0.1)",
+                    border: "1px solid rgba(34, 197, 94, 0.2)",
+                    alignSelf: "flex-start",
                   }}
                 >
-                  Streaming
-                </Typography>
-              </Box>
-            )}
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "rgb(34, 197, 94)",
+                      fontSize: "0.65rem",
+                      fontWeight: 500,
+                    }}
+                  >
+                    Streaming
+                  </Typography>
+                </Box>
+              )}
+            </Box>
           </Box>
         </CardActionArea>
       </Card>

@@ -12,17 +12,34 @@ interface MessagesListProps {
 export const MessagesList = memo<MessagesListProps>(
   ({ messages, isStreaming }) => {
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-    const scrollToBottom = () => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const scrollToBottom = (immediate = false) => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({
+          behavior: immediate ? "instant" : "smooth",
+          block: "end",
+        });
+      }
     };
 
     useEffect(() => {
       scrollToBottom();
     }, [messages]);
 
+    useEffect(() => {
+      if (isStreaming) {
+        const interval = setInterval(() => {
+          scrollToBottom(true);
+        }, 50);
+
+        return () => clearInterval(interval);
+      }
+    }, [isStreaming]);
+
     return (
       <Box
+        ref={containerRef}
         sx={{
           flex: 1,
           overflow: "auto",
@@ -55,6 +72,7 @@ export const MessagesList = memo<MessagesListProps>(
             },
             mx: "auto",
             px: { xs: 2, sm: 3, md: 4, lg: 6, xl: 8 },
+            pb: 2,
           }}
         >
           {messages.map((message) => {
@@ -72,7 +90,7 @@ export const MessagesList = memo<MessagesListProps>(
               />
             );
           })}
-          <div ref={messagesEndRef} />
+          <div ref={messagesEndRef} style={{ height: "20px" }} />
         </Box>
       </Box>
     );
