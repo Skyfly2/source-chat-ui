@@ -45,9 +45,10 @@ export const ChatInput = memo<ChatInputProps>(
         component="form"
         elevation={0}
         sx={{
-          p: 1,
+          px: 1.5,
+          py: 0.75,
           display: "flex",
-          alignItems: "flex-end",
+          alignItems: "center",
           gap: 1,
           borderRadius: 3,
           maxWidth: { xs: "100%", sm: "600px", md: "700px" },
