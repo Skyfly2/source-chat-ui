@@ -7,8 +7,8 @@ import { Sidebar } from "../components/common/Sidebar";
 import { WelcomeScreen } from "../components/common/WelcomeScreen";
 import { useChat } from "../hooks/useChat";
 import { useChatState } from "../hooks/useChatState";
-import { useConversations } from "../hooks/useConversations";
 import { useModels } from "../hooks/useModels";
+import { useThreads } from "../hooks/useThreads";
 
 export const Home: React.FC = memo(() => {
   const [currentConversationId, setCurrentConversationId] = useState<
@@ -35,10 +35,12 @@ export const Home: React.FC = memo(() => {
 
   const {
     conversations,
-    deleteConversation,
-    updateConversation,
-    getConversation,
-  } = useConversations();
+    isLoading: threadsLoading,
+    error: threadsError,
+    refreshThreads,
+    deleteThread,
+    updateThreadTitle,
+  } = useThreads();
 
   const {
     models,
@@ -58,6 +60,8 @@ export const Home: React.FC = memo(() => {
       // Update the current conversation ID if we got a new thread from global state
       if (state.chat.currentThreadId && !currentConversationId) {
         setCurrentConversationId(state.chat.currentThreadId);
+        // Refresh threads to get the newly created thread
+        await refreshThreads();
       }
     },
     [
@@ -65,6 +69,7 @@ export const Home: React.FC = memo(() => {
       selectedModel,
       state.chat.currentThreadId,
       currentConversationId,
+      refreshThreads,
     ]
   );
 
@@ -87,24 +92,34 @@ export const Home: React.FC = memo(() => {
   );
 
   const handleDeleteConversation = useCallback(
-    (id: string) => {
-      deleteConversation(id);
-      if (currentConversationId === id) {
-        handleNewChat();
+    async (id: string) => {
+      try {
+        await deleteThread(id);
+        if (currentConversationId === id) {
+          handleNewChat();
+        }
+      } catch (err) {
+        // Error is already handled in useThreads hook
+        console.error("Failed to delete thread:", err);
       }
     },
-    [currentConversationId, handleNewChat, deleteConversation]
+    [currentConversationId, handleNewChat, deleteThread]
   );
 
   const handleRenameConversation = useCallback(
-    (id: string, newTitle: string) => {
-      updateConversation(id, { title: newTitle });
+    async (id: string, newTitle: string) => {
+      try {
+        await updateThreadTitle(id, newTitle);
+      } catch (err) {
+        // Error is already handled in useThreads hook
+        console.error("Failed to rename thread:", err);
+      }
     },
-    [updateConversation]
+    [updateThreadTitle]
   );
 
-  const currentConversation = getConversation(
-    currentConversationId || state.chat.currentThreadId || ""
+  const currentConversation = conversations.find(
+    (conv) => conv.id === (currentConversationId || state.chat.currentThreadId)
   );
   const hasMessages = messages.length > 0;
   const showWelcome = !hasMessages && !isLoading;
@@ -132,6 +147,7 @@ export const Home: React.FC = memo(() => {
         onSelectConversation={handleSelectConversation}
         onDeleteConversation={handleDeleteConversation}
         onRenameConversation={handleRenameConversation}
+        isLoading={threadsLoading}
       />
 
       <Box
@@ -166,7 +182,7 @@ export const Home: React.FC = memo(() => {
             <MessagesList messages={messages} isStreaming={isStreaming} />
           )}
 
-          {(error || modelsError) && (
+          {(error || modelsError || threadsError) && (
             <Alert
               severity="error"
               onClose={clearError}
@@ -180,7 +196,7 @@ export const Home: React.FC = memo(() => {
                 width: "fit-content",
               }}
             >
-              {error || modelsError}
+              {error || modelsError || threadsError}
             </Alert>
           )}
         </Box>

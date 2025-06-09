@@ -2,6 +2,7 @@ import { Add, Close } from "@mui/icons-material";
 import {
   Box,
   Button,
+  CircularProgress,
   Drawer,
   IconButton,
   List,
@@ -30,6 +31,7 @@ interface SidebarProps {
   onSelectConversation: (id: string) => void;
   onDeleteConversation: (id: string) => void;
   onRenameConversation: (id: string, newTitle: string) => void;
+  isLoading?: boolean;
 }
 
 export const Sidebar = memo<SidebarProps>(
@@ -42,6 +44,7 @@ export const Sidebar = memo<SidebarProps>(
     onSelectConversation,
     onDeleteConversation,
     onRenameConversation: _onRenameConversation,
+    isLoading = false,
   }) => {
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -122,67 +125,93 @@ export const Sidebar = memo<SidebarProps>(
             Recent Chats
           </Typography>
 
-          <List sx={{ px: 1, py: 0 }}>
-            {conversations.map((conversation) => (
-              <ListItem key={conversation.id} disablePadding>
-                <ListItemButton
-                  selected={conversation.id === currentConversationId}
-                  onClick={() => onSelectConversation(conversation.id)}
-                  sx={{
-                    borderRadius: 1.5,
-                    mx: 0.5,
-                    my: 0.25,
-                    transition: "all 0.15s ease-out",
-                    "&.Mui-selected": {
-                      background: (theme) =>
-                        theme.palette.mode === "dark"
-                          ? "rgba(148, 163, 184, 0.15)"
-                          : "rgba(148, 163, 184, 0.1)",
+          {isLoading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                py: 4,
+              }}
+            >
+              <CircularProgress size={24} />
+            </Box>
+          ) : conversations.length === 0 ? (
+            <Box sx={{ px: 2, py: 4 }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: "text.secondary",
+                  textAlign: "center",
+                  fontSize: "0.8rem",
+                }}
+              >
+                No conversations yet
+              </Typography>
+            </Box>
+          ) : (
+            <List sx={{ px: 1, py: 0 }}>
+              {conversations.map((conversation) => (
+                <ListItem key={conversation.id} disablePadding>
+                  <ListItemButton
+                    selected={conversation.id === currentConversationId}
+                    onClick={() => onSelectConversation(conversation.id)}
+                    sx={{
+                      borderRadius: 1.5,
+                      mx: 0.5,
+                      my: 0.25,
+                      transition: "all 0.15s ease-out",
+                      "&.Mui-selected": {
+                        background: (theme) =>
+                          theme.palette.mode === "dark"
+                            ? "rgba(148, 163, 184, 0.15)"
+                            : "rgba(148, 163, 184, 0.1)",
+                        "&:hover": {
+                          background: (theme) =>
+                            theme.palette.mode === "dark"
+                              ? "rgba(148, 163, 184, 0.2)"
+                              : "rgba(148, 163, 184, 0.15)",
+                        },
+                      },
                       "&:hover": {
                         background: (theme) =>
                           theme.palette.mode === "dark"
-                            ? "rgba(148, 163, 184, 0.2)"
-                            : "rgba(148, 163, 184, 0.15)",
-                      },
-                    },
-                    "&:hover": {
-                      background: (theme) =>
-                        theme.palette.mode === "dark"
-                          ? "rgba(148, 163, 184, 0.08)"
-                          : "rgba(148, 163, 184, 0.05)",
-                    },
-                  }}
-                >
-                  <ListItemText
-                    primary={conversation.title}
-                    primaryTypographyProps={{
-                      fontSize: "0.9rem",
-                      fontWeight: 500,
-                      noWrap: true,
-                    }}
-                  />
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDeleteConversation(conversation.id);
-                    }}
-                    sx={{
-                      opacity: 0.5,
-                      color: "text.secondary",
-                      "&:hover": {
-                        opacity: 1,
-                        color: "error.main",
-                        background: "rgba(239, 68, 68, 0.05)",
+                            ? "rgba(148, 163, 184, 0.08)"
+                            : "rgba(148, 163, 184, 0.05)",
                       },
                     }}
                   >
-                    <Close fontSize="small" />
-                  </IconButton>
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
+                    <ListItemText
+                      primary={conversation.title}
+                      primaryTypographyProps={{
+                        fontSize: "0.9rem",
+                        fontWeight: 500,
+                        noWrap: true,
+                      }}
+                    />
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onDeleteConversation(conversation.id);
+                      }}
+                      sx={{
+                        opacity: 0.5,
+                        color: "text.secondary",
+                        "&:hover": {
+                          opacity: 1,
+                          color: "error.main",
+                          background: "rgba(239, 68, 68, 0.05)",
+                        },
+                      }}
+                    >
+                      <Close fontSize="small" />
+                    </IconButton>
+                  </ListItemButton>
+                </ListItem>
+              ))}
+            </List>
+          )}
         </Box>
 
         {/* Footer */}

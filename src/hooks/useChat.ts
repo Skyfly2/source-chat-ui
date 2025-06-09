@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { api } from "../api";
 import { ChatMessage, ChatRequest } from "../types";
 import { generateObjectId } from "../utils/objectId";
@@ -18,10 +18,47 @@ export const useChat = (): UseChatReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tempMessages, setTempMessages] = useState<ChatMessage[]>([]);
+  const [loadingMessages, setLoadingMessages] = useState(false);
 
   const { state, setCurrentThread, setStreaming, updateMessages } =
     useChatState();
   const currentThreadId = state.chat.currentThreadId;
+
+  // Load messages when thread changes
+  useEffect(() => {
+    const loadThreadMessages = async () => {
+      if (!currentThreadId) return;
+
+      // Don't load if we already have messages for this thread
+      if (state.chat.messages[currentThreadId]?.length > 0) return;
+
+      try {
+        setLoadingMessages(true);
+        setError(null);
+        const backendMessages = await api.getThreadMessages(currentThreadId);
+
+        // Convert backend messages to ChatMessage format
+        const chatMessages: ChatMessage[] = backendMessages.map((msg: any) => ({
+          id: msg._id || generateObjectId(),
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date(msg.createdAt || msg.timestamp),
+          model: msg.model,
+        }));
+
+        // Update global state with loaded messages
+        updateMessages(currentThreadId, chatMessages);
+      } catch (err) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load thread messages"
+        );
+      } finally {
+        setLoadingMessages(false);
+      }
+    };
+
+    loadThreadMessages();
+  }, [currentThreadId, state.chat.messages, updateMessages]);
 
   // Get messages for the current thread from global state, sorted by timestamp
   // If no thread ID, use temporary messages for new conversations
@@ -193,7 +230,7 @@ export const useChat = (): UseChatReturn => {
 
   return {
     messages,
-    isLoading,
+    isLoading: isLoading || loadingMessages,
     isStreaming: state.chat.isStreaming,
     error,
     sendMessage,

@@ -9,6 +9,20 @@ const apiClient = axios.create({
   timeout: 30000,
 });
 
+// Thread-related types
+export interface MessageThread {
+  _id: string;
+  title: string;
+  model: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ThreadsResponse {
+  threads: MessageThread[];
+  total: number;
+}
+
 export const api = {
   async getModels(): Promise<ModelsResponse> {
     const response: AxiosResponse<ApiResponse<ModelsResponse>> =
@@ -49,5 +63,56 @@ export const api = {
       stream: response.body,
       threadId,
     };
+  },
+
+  // Thread management APIs
+  async getThreads(params?: {
+    limit?: number;
+    skip?: number;
+    search?: string;
+  }): Promise<ThreadsResponse> {
+    const response: AxiosResponse<ApiResponse<ThreadsResponse>> =
+      await apiClient.get("/threads", { params });
+
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch threads");
+    }
+
+    return response.data.data!;
+  },
+
+  async deleteThread(threadId: string): Promise<void> {
+    const response: AxiosResponse<ApiResponse<never>> = await apiClient.delete(
+      `/threads/${threadId}`
+    );
+
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to delete thread");
+    }
+  },
+
+  async updateThread(
+    threadId: string,
+    updates: { title?: string; model?: string }
+  ): Promise<MessageThread> {
+    const response: AxiosResponse<ApiResponse<{ thread: MessageThread }>> =
+      await apiClient.put(`/threads/${threadId}`, updates);
+
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to update thread");
+    }
+
+    return response.data.data!.thread;
+  },
+
+  async getThreadMessages(threadId: string): Promise<any[]> {
+    const response: AxiosResponse<ApiResponse<{ messages: any[] }>> =
+      await apiClient.get(`/threads/${threadId}/messages`);
+
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch thread messages");
+    }
+
+    return response.data.data!.messages;
   },
 };
