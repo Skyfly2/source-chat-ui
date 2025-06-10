@@ -13,9 +13,7 @@ import { useModels } from "../hooks/useModels";
 import { useThreads } from "../hooks/useThreads";
 
 export const Home: React.FC = memo(() => {
-  const [currentConversationId, setCurrentConversationId] = useState<
-    string | null
-  >(null);
+  const [currentThreadId, setCurrentThreadId] = useState<string | null>(null);
 
   const { isSignedIn, isLoading: authLoading } = useAuthContext();
 
@@ -23,6 +21,7 @@ export const Home: React.FC = memo(() => {
     state,
     toggleSidebar: globalToggleSidebar,
     setSidebarOpen,
+    setSelectedModel: globalSetSelectedModel,
     setCurrentThread,
   } = useChatState();
 
@@ -37,7 +36,7 @@ export const Home: React.FC = memo(() => {
   } = useChat();
 
   const {
-    conversations,
+    conversations: threads,
     isLoading: threadsLoading,
     error: threadsError,
     refreshThreads,
@@ -57,31 +56,26 @@ export const Home: React.FC = memo(() => {
 
   const threadsRef = useRef<string[]>([]);
 
-  // Sync local conversation ID with global thread state
   useEffect(() => {
     if (
       state.chat.currentThreadId &&
-      state.chat.currentThreadId !== currentConversationId
+      state.chat.currentThreadId !== currentThreadId
     ) {
-      setCurrentConversationId(state.chat.currentThreadId);
+      setCurrentThreadId(state.chat.currentThreadId);
     }
-  }, [state.chat.currentThreadId, currentConversationId]);
+  }, [state.chat.currentThreadId, currentThreadId]);
 
-  // Refresh threads when a new thread is created (simplified)
   useEffect(() => {
     const refreshIfNewThread = async () => {
       if (state.chat.currentThreadId) {
-        // Check if we've already refreshed for this thread
         if (!threadsRef.current.includes(state.chat.currentThreadId)) {
           console.log(
             "🔄 Refreshing threads for new thread ID:",
             state.chat.currentThreadId
           );
 
-          // Mark this thread as refreshed
           threadsRef.current.push(state.chat.currentThreadId);
 
-          // Single refresh with a small delay to ensure backend has processed
           await new Promise((resolve) => setTimeout(resolve, 300));
           await refreshThreads();
         }
@@ -93,55 +87,47 @@ export const Home: React.FC = memo(() => {
 
   const handleSendMessage = useCallback(
     async (message: string) => {
-      const wasNewThread =
-        !currentConversationId && !state.chat.currentThreadId;
+      const wasNewThread = !currentThreadId && !state.chat.currentThreadId;
 
       const resultThreadId = await sendMessage(message, selectedModel);
 
       if (wasNewThread && resultThreadId) {
-        setCurrentConversationId(resultThreadId);
+        setCurrentThreadId(resultThreadId);
       }
     },
-    [
-      sendMessage,
-      selectedModel,
-      state.chat.currentThreadId,
-      currentConversationId,
-      refreshThreads,
-      conversations,
-    ]
+    [sendMessage, selectedModel, state.chat.currentThreadId, currentThreadId]
   );
 
   const handleNewChat = useCallback(() => {
     clearMessages();
-    setCurrentConversationId(null);
+    setCurrentThreadId(null);
     setSidebarOpen(false);
   }, [clearMessages, setSidebarOpen]);
 
-  const handleSelectConversation = useCallback(
+  const handleSelectThread = useCallback(
     (id: string) => {
-      setCurrentConversationId(id);
+      setCurrentThreadId(id);
       setCurrentThread(id);
       setSidebarOpen(false);
     },
     [setSidebarOpen, setCurrentThread]
   );
 
-  const handleDeleteConversation = useCallback(
+  const handleDeleteThread = useCallback(
     async (id: string) => {
       try {
         await deleteThread(id);
-        if (currentConversationId === id) {
+        if (currentThreadId === id) {
           handleNewChat();
         }
       } catch (err) {
         console.error("Failed to delete thread:", err);
       }
     },
-    [currentConversationId, handleNewChat, deleteThread]
+    [currentThreadId, handleNewChat, deleteThread]
   );
 
-  const handleRenameConversation = useCallback(
+  const handleRenameThread = useCallback(
     async (id: string, newTitle: string) => {
       try {
         await updateThreadTitle(id, newTitle);
@@ -171,8 +157,8 @@ export const Home: React.FC = memo(() => {
     return <SignIn />;
   }
 
-  const currentConversation = conversations.find(
-    (conv) => conv.id === (currentConversationId || state.chat.currentThreadId)
+  const currentThread = threads.find(
+    (thread) => thread.id === (currentThreadId || state.chat.currentThreadId)
   );
   const hasMessages = messages.length > 0;
   const showWelcome = !hasMessages && !isLoading;
@@ -188,14 +174,14 @@ export const Home: React.FC = memo(() => {
       <Sidebar
         open={state.sidebar.isOpen}
         onClose={() => setSidebarOpen(false)}
-        conversations={conversations}
-        currentConversationId={
-          currentConversationId || state.chat.currentThreadId || undefined
+        threads={threads}
+        currentThreadId={
+          currentThreadId || state.chat.currentThreadId || undefined
         }
         onNewChat={handleNewChat}
-        onSelectConversation={handleSelectConversation}
-        onDeleteConversation={handleDeleteConversation}
-        onRenameConversation={handleRenameConversation}
+        onSelectThread={handleSelectThread}
+        onDeleteThread={handleDeleteThread}
+        onRenameThread={handleRenameThread}
         isLoading={threadsLoading}
       />
 
@@ -213,7 +199,7 @@ export const Home: React.FC = memo(() => {
       >
         <ChatHeader
           onToggleSidebar={globalToggleSidebar}
-          currentConversationTitle={currentConversation?.title || undefined}
+          currentConversationTitle={currentThread?.title || undefined}
           onNewThread={handleNewChat}
           sidebarOpen={state.sidebar.isOpen}
           onRefreshThreads={refreshThreads}
@@ -226,7 +212,7 @@ export const Home: React.FC = memo(() => {
             flexDirection: "column",
             position: "relative",
             overflow: "hidden",
-            paddingBottom: "120px", // Space for fixed input at bottom
+            paddingBottom: "120px",
           }}
         >
           <Box
