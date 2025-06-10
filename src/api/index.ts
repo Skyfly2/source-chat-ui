@@ -9,6 +9,14 @@ const apiClient = axios.create({
   timeout: 30000,
 });
 
+export const setAuthToken = (token: string | null) => {
+  if (token) {
+    apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  } else {
+    delete apiClient.defaults.headers.common["Authorization"];
+  }
+};
+
 // Thread-related types
 export interface MessageThread {
   _id: string;
@@ -35,16 +43,24 @@ export const api = {
     return response.data.data!;
   },
 
-  async streamChat(request: ChatRequest): Promise<{
+  async streamChat(
+    request: ChatRequest,
+    authToken?: string
+  ): Promise<{
     stream: ReadableStream<Uint8Array>;
     threadId?: string;
   }> {
-    // Use fetch for streaming since axios doesn't handle streaming well in browsers
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+
+    if (authToken) {
+      headers.Authorization = `Bearer ${authToken}`;
+    }
+
     const response = await fetch(`${API_BASE_URL}/chat/stream`, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers,
       body: JSON.stringify(request),
     });
 
@@ -56,7 +72,6 @@ export const api = {
       throw new Error("No response body available");
     }
 
-    // Extract thread ID from response headers
     const threadId = response.headers.get("X-Thread-Id") || undefined;
 
     return {

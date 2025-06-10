@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api } from "../api";
+import { useAuthContext } from "../contexts/AuthContext";
 import { ChatMessage, ChatRequest } from "../types";
 import { generateObjectId } from "../utils/objectId";
 import { useChatState } from "./useChatState";
@@ -22,6 +23,7 @@ export const useChat = (): UseChatReturn => {
 
   const { state, setCurrentThread, setStreaming, updateMessages } =
     useChatState();
+  const { getToken } = useAuthContext();
   const currentThreadId = state.chat.currentThreadId;
 
   // Load messages when thread changes
@@ -95,7 +97,6 @@ export const useChat = (): UseChatReturn => {
       setIsLoading(true);
       setStreaming(true);
 
-      // Use existing thread ID or let backend create one
       let threadId = currentThreadId;
 
       const userMessage: ChatMessage = {
@@ -105,14 +106,12 @@ export const useChat = (): UseChatReturn => {
         timestamp: new Date(),
       };
 
-      // Add user message to the thread or temporary storage
       let messagesWithUser: ChatMessage[] = [];
       if (threadId) {
         const currentMessages = state.chat.messages[threadId] || [];
         messagesWithUser = [...currentMessages, userMessage];
         updateMessages(threadId, messagesWithUser);
       } else {
-        // For new threads, use temporary messages and update UI immediately
         messagesWithUser = [...tempMessages, userMessage];
         setTempMessages(messagesWithUser);
       }
@@ -126,7 +125,6 @@ export const useChat = (): UseChatReturn => {
           model,
         };
 
-        // Add initial assistant message to the thread or temporary storage
         const messagesWithAssistant = [...messagesWithUser, assistantMessage];
         if (threadId) {
           updateMessages(threadId, messagesWithAssistant);
@@ -141,33 +139,28 @@ export const useChat = (): UseChatReturn => {
           context: messagesWithUser.map((msg) => ({
             role: msg.role,
             content: msg.content,
-          })), // Send full conversation history to backend
+          })),
           threadId: threadId || undefined,
         };
 
+        // Get auth token and pass it to the API call
+        const authToken = await getToken();
         const { stream, threadId: serverThreadId } = await api.streamChat(
-          chatRequest
+          chatRequest,
+          authToken || undefined
         );
-        console.log("🔍 API response - serverThreadId:", serverThreadId);
-        console.log("🔍 Current threadId before check:", threadId);
 
         const reader = stream.getReader();
         const decoder = new TextDecoder();
 
         let accumulatedContent = "";
 
-        // If server provided a thread ID and we don't have one set, set it immediately
         if (serverThreadId && !threadId) {
-          console.log("🚀 Setting new thread ID:", serverThreadId);
           setCurrentThread(serverThreadId);
-          threadId = serverThreadId; // Update local variable
-
-          // Move temporary messages to the new thread
+          threadId = serverThreadId;
           updateMessages(serverThreadId, messagesWithAssistant);
-          setTempMessages([]); // Clear temporary messages
+          setTempMessages([]);
         }
-
-        console.log("🔍 Final threadId after processing:", threadId);
 
         while (true) {
           const { done, value } = await reader.read();
@@ -177,40 +170,35 @@ export const useChat = (): UseChatReturn => {
           const chunk = decoder.decode(value, { stream: true });
           accumulatedContent += chunk;
 
-          // Update the assistant message content
           const updatedMessages = messagesWithAssistant.map((msg) =>
             msg.id === assistantMessage.id
               ? { ...msg, content: accumulatedContent }
               : msg
           );
 
-          // Update messages in the correct thread
           if (threadId) {
             updateMessages(threadId, updatedMessages);
           } else {
-            // Update temporary messages for new conversations (shouldn't happen now)
             setTempMessages(updatedMessages);
           }
         }
 
         setStreaming(false);
-        return threadId; // Return the thread ID
+        return threadId;
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred");
         setIsLoading(false);
         setStreaming(false);
 
-        // Remove the incomplete assistant message on error
         if (threadId) {
           const currentThreadMessages = state.chat.messages[threadId] || [];
           if (currentThreadMessages.length > 0) {
             updateMessages(threadId, currentThreadMessages.slice(0, -1));
           }
         } else {
-          // For new conversations, remove the assistant message from temp messages
           setTempMessages((prev) => prev.slice(0, -1));
         }
-        return null; // Return null on error
+        return null;
       }
     },
     [
@@ -220,6 +208,7 @@ export const useChat = (): UseChatReturn => {
       updateMessages,
       state.chat.messages,
       tempMessages,
+      getToken,
     ]
   );
 

@@ -1,10 +1,12 @@
-import { Alert, Box } from "@mui/material";
+import { Alert, Box, CircularProgress } from "@mui/material";
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { ChatHeader } from "../components/common/ChatHeader";
 import { ChatInput } from "../components/common/ChatInput";
 import { MessagesList } from "../components/common/MessagesList";
 import { Sidebar } from "../components/common/Sidebar";
+import { SignIn } from "../components/common/SignIn";
 import { WelcomeScreen } from "../components/common/WelcomeScreen";
+import { useAuthContext } from "../contexts/AuthContext";
 import { useChat } from "../hooks/useChat";
 import { useChatState } from "../hooks/useChatState";
 import { useModels } from "../hooks/useModels";
@@ -15,11 +17,12 @@ export const Home: React.FC = memo(() => {
     string | null
   >(null);
 
+  const { isSignedIn, isLoading: authLoading } = useAuthContext();
+
   const {
     state,
     toggleSidebar: globalToggleSidebar,
     setSidebarOpen,
-    setSelectedModel: globalSetSelectedModel,
     setCurrentThread,
   } = useChatState();
 
@@ -93,40 +96,10 @@ export const Home: React.FC = memo(() => {
       const wasNewThread =
         !currentConversationId && !state.chat.currentThreadId;
 
-      console.log("🚀 Sending message, wasNewThread:", wasNewThread);
-      console.log(
-        "📊 Before send - currentConversationId:",
-        currentConversationId
-      );
-      console.log(
-        "📊 Before send - currentThreadId:",
-        state.chat.currentThreadId
-      );
-      console.log(
-        "📊 Before send - conversations count:",
-        conversations.length
-      );
-
-      // The useChat hook now handles thread creation and management automatically
       const resultThreadId = await sendMessage(message, selectedModel);
 
-      console.log("✅ Message sent");
-      console.log(
-        "📊 After send - currentThreadId:",
-        state.chat.currentThreadId
-      );
-      console.log("📊 After send - resultThreadId:", resultThreadId);
-
-      // If this was a new thread, set the conversation ID and let the useEffect handle refresh
       if (wasNewThread && resultThreadId) {
-        console.log("🔄 Setting thread ID for new thread:", resultThreadId);
-
-        // Set the conversation ID immediately
         setCurrentConversationId(resultThreadId);
-        console.log("📝 Set currentConversationId to:", resultThreadId);
-
-        // The useEffect will handle refreshing when currentThreadId changes
-        // No need for aggressive manual refreshing here
       }
     },
     [
@@ -140,7 +113,7 @@ export const Home: React.FC = memo(() => {
   );
 
   const handleNewChat = useCallback(() => {
-    clearMessages(); // This will also clear the current thread in global state
+    clearMessages();
     setCurrentConversationId(null);
     setSidebarOpen(false);
   }, [clearMessages, setSidebarOpen]);
@@ -148,11 +121,8 @@ export const Home: React.FC = memo(() => {
   const handleSelectConversation = useCallback(
     (id: string) => {
       setCurrentConversationId(id);
-      setCurrentThread(id); // Set the thread ID in global state
+      setCurrentThread(id);
       setSidebarOpen(false);
-
-      // Messages will automatically be loaded from global state based on thread ID
-      // No need to manually load here as useChat hook handles this via useMemo
     },
     [setSidebarOpen, setCurrentThread]
   );
@@ -165,7 +135,6 @@ export const Home: React.FC = memo(() => {
           handleNewChat();
         }
       } catch (err) {
-        // Error is already handled in useThreads hook
         console.error("Failed to delete thread:", err);
       }
     },
@@ -177,12 +146,30 @@ export const Home: React.FC = memo(() => {
       try {
         await updateThreadTitle(id, newTitle);
       } catch (err) {
-        // Error is already handled in useThreads hook
         console.error("Failed to rename thread:", err);
       }
     },
     [updateThreadTitle]
   );
+
+  if (authLoading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!isSignedIn) {
+    return <SignIn />;
+  }
 
   const currentConversation = conversations.find(
     (conv) => conv.id === (currentConversationId || state.chat.currentThreadId)
