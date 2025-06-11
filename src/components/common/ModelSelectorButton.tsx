@@ -5,14 +5,13 @@ import { ModelInfo } from "../../types";
 import { ProviderLogo } from "./ProviderLogo";
 
 interface ModelSelectorButtonProps {
-  selectedModel: string;
   selectedModelInfo?: ModelInfo;
   disabled?: boolean;
   onClick: () => void;
 }
 
 export const ModelSelectorButton = memo<ModelSelectorButtonProps>(
-  ({ selectedModel, selectedModelInfo, disabled = false, onClick }) => {
+  ({ selectedModelInfo, disabled = false, onClick }) => {
     return (
       <Button
         onClick={onClick}
@@ -70,7 +69,7 @@ export const ModelSelectorButton = memo<ModelSelectorButtonProps>(
               fontFamily: '"Manrope", "Inter", sans-serif',
             }}
           >
-            {selectedModelInfo?.displayName || selectedModel || "Select Model"}
+            {selectedModelInfo?.displayName || "Select Model"}
           </Typography>
         </Box>
       </Button>

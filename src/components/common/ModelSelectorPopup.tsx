@@ -59,12 +59,13 @@ export const ModelSelectorPopup = memo<ModelSelectorPopupProps>(
     return (
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
         <Box sx={{ display: "flex", justifyContent: "center" }}>
-          <ModelSelectorButton
-            selectedModel={selectedModel}
-            selectedModelInfo={selectedModelInfo}
-            disabled={disabled}
-            onClick={() => setModelSelectorOpen(true)}
-          />
+          {selectedModelInfo && (
+            <ModelSelectorButton
+              selectedModelInfo={selectedModelInfo}
+              disabled={disabled}
+              onClick={() => setModelSelectorOpen(true)}
+            />
+          )}
         </Box>
 
         <ModelSelectorDialog

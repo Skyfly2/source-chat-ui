@@ -267,13 +267,7 @@ export const Home: React.FC = memo(() => {
               onSendMessage={handleSendMessage}
               disabled={isLoading || modelsLoading || !selectedModel}
               isStreaming={isStreaming}
-              placeholder={
-                modelsLoading
-                  ? "Loading models..."
-                  : !selectedModel
-                  ? "Select a model to start chatting"
-                  : "Message Source Chat..."
-              }
+              placeholder="Message Source Chat..."
               models={models}
               modelDetails={modelDetails}
               selectedModel={selectedModel}
