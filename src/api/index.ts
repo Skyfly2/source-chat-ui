@@ -9,12 +9,27 @@ const apiClient = axios.create({
   timeout: 30000,
 });
 
+let currentAuthToken: string | null = null;
+
 export const setAuthToken = (token: string | null) => {
+  currentAuthToken = token;
   if (token) {
     apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
   } else {
     delete apiClient.defaults.headers.common["Authorization"];
   }
+};
+
+const getAuthHeaders = (): Record<string, string> => {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+
+  if (currentAuthToken) {
+    headers.Authorization = `Bearer ${currentAuthToken}`;
+  }
+
+  return headers;
 };
 
 // Thread-related types
@@ -43,24 +58,13 @@ export const api = {
     return response.data.data!;
   },
 
-  async streamChat(
-    request: ChatRequest,
-    authToken?: string
-  ): Promise<{
+  async streamChat(request: ChatRequest): Promise<{
     stream: ReadableStream<Uint8Array>;
     threadId?: string;
   }> {
-    const headers: Record<string, string> = {
-      "Content-Type": "application/json",
-    };
-
-    if (authToken) {
-      headers.Authorization = `Bearer ${authToken}`;
-    }
-
     const response = await fetch(`${API_BASE_URL}/chat/stream`, {
       method: "POST",
-      headers,
+      headers: getAuthHeaders(),
       body: JSON.stringify(request),
     });
 
@@ -80,7 +84,6 @@ export const api = {
     };
   },
 
-  // Thread management APIs
   async getThreads(params?: {
     limit?: number;
     skip?: number;

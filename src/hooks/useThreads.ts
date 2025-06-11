@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api, MessageThread } from "../api";
+import { useAuthContext } from "../contexts/AuthContext";
 
 interface ConversationThread {
   id: string;
@@ -22,6 +23,8 @@ export const useThreads = (): UseThreadsReturn => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const { isSignedIn, isLoading: authLoading } = useAuthContext();
+
   // Convert backend threads to conversation format expected by UI
   const conversations = useMemo(() => {
     const result = threads.map((thread) => ({
@@ -35,13 +38,15 @@ export const useThreads = (): UseThreadsReturn => {
   }, [threads]);
 
   const fetchThreads = useCallback(async () => {
+    if (authLoading || !isSignedIn) {
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setError(null);
       setIsLoading(true);
-      console.log("🔄 Fetching threads...");
       const response = await api.getThreads({ limit: 50 }); // Get up to 50 recent threads
-      console.log("📝 Raw thread response:", response);
-      console.log("📋 Threads received:", response.threads?.length || 0);
       setThreads(response.threads || []);
     } catch (err) {
       console.error("❌ Error fetching threads:", err);
@@ -49,7 +54,7 @@ export const useThreads = (): UseThreadsReturn => {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [authLoading, isSignedIn]);
 
   const deleteThread = useCallback(async (threadId: string) => {
     try {
@@ -86,6 +91,13 @@ export const useThreads = (): UseThreadsReturn => {
   useEffect(() => {
     fetchThreads();
   }, [fetchThreads]);
+
+  // Fetch threads when auth is ready
+  useEffect(() => {
+    if (!authLoading && isSignedIn) {
+      fetchThreads();
+    }
+  }, [authLoading, isSignedIn, fetchThreads]);
 
   return {
     conversations,

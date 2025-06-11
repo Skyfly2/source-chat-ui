@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api } from "../api";
-import { useAuthContext } from "../contexts/AuthContext";
 import { ChatMessage, ChatRequest } from "../types";
 import { generateObjectId } from "../utils/objectId";
 import { useChatState } from "./useChatState";
@@ -23,7 +22,6 @@ export const useChat = (): UseChatReturn => {
 
   const { state, setCurrentThread, setStreaming, updateMessages } =
     useChatState();
-  const { getToken } = useAuthContext();
   const currentThreadId = state.chat.currentThreadId;
 
   // Load messages when thread changes
@@ -143,11 +141,8 @@ export const useChat = (): UseChatReturn => {
           threadId: threadId || undefined,
         };
 
-        // Get auth token and pass it to the API call
-        const authToken = await getToken();
         const { stream, threadId: serverThreadId } = await api.streamChat(
-          chatRequest,
-          authToken || undefined
+          chatRequest
         );
 
         const reader = stream.getReader();
@@ -208,7 +203,6 @@ export const useChat = (): UseChatReturn => {
       updateMessages,
       state.chat.messages,
       tempMessages,
-      getToken,
     ]
   );
 
