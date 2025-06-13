@@ -204,7 +204,6 @@ export const Home: React.FC = memo(() => {
             flexDirection: "column",
             position: "relative",
             overflow: "hidden",
-            paddingBottom: "120px",
           }}
         >
           <Box

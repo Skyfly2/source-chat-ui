@@ -90,7 +90,7 @@ export const MessagesList = memo<MessagesListProps>(
               />
             );
           })}
-          <div ref={messagesEndRef} style={{ height: "20px" }} />
+          <div ref={messagesEndRef} style={{ height: "140px" }} />
         </Box>
       </Box>
     );
