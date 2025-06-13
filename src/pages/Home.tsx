@@ -9,7 +9,7 @@ import { WelcomeScreen } from "../components/common/WelcomeScreen";
 import { useAuthContext } from "../contexts/AuthContext";
 import { useChat } from "../hooks/useChat";
 import { useChatState } from "../hooks/useChatState";
-import { useModels } from "../hooks/useModels";
+import { useImportantModels } from "../hooks/useModels";
 import { useThreads } from "../hooks/useThreads";
 
 export const Home: React.FC = memo(() => {
@@ -51,7 +51,7 @@ export const Home: React.FC = memo(() => {
     error: modelsError,
     setSelectedModel,
     refreshModels: _refreshModels,
-  } = useModels();
+  } = useImportantModels();
 
   const threadsRef = useRef<string[]>([]);
 

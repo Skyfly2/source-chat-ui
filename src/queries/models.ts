@@ -14,3 +14,29 @@ export const useModelsQuery = () => {
     enabled: !authLoading && isSignedIn,
   });
 };
+
+export const useImportantModelsQuery = () => {
+  const { getToken, isSignedIn, isLoading: authLoading } = useAuthContext();
+
+  return useQuery({
+    queryKey: ["models", "important"],
+    queryFn: async () => {
+      const token = await getToken();
+      return api.getImportantModels(token);
+    },
+    enabled: !authLoading && isSignedIn,
+  });
+};
+
+export const useAllModelsQuery = () => {
+  const { getToken, isSignedIn, isLoading: authLoading } = useAuthContext();
+
+  return useQuery({
+    queryKey: ["models", "all"],
+    queryFn: async () => {
+      const token = await getToken();
+      return api.getAllModels(token);
+    },
+    enabled: !authLoading && isSignedIn,
+  });
+};

@@ -1,5 +1,11 @@
 import axios, { AxiosResponse } from "axios";
-import { ApiResponse, ChatRequest, ModelsResponse } from "../types";
+import {
+  AllModelsResponse,
+  ApiResponse,
+  ChatRequest,
+  ImportantModelsResponse,
+  ModelsResponse,
+} from "../types";
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
@@ -51,6 +57,34 @@ export const api = {
 
     if (!response.data.success) {
       throw new Error(response.data.error || "Failed to fetch models");
+    }
+
+    return response.data.data!;
+  },
+
+  async getImportantModels(
+    authToken?: string | null
+  ): Promise<ImportantModelsResponse> {
+    const client = createApiClient(authToken);
+    const response: AxiosResponse<ApiResponse<ImportantModelsResponse>> =
+      await client.get("/chat/models/important");
+
+    if (!response.data.success) {
+      throw new Error(
+        response.data.error || "Failed to fetch important models"
+      );
+    }
+
+    return response.data.data!;
+  },
+
+  async getAllModels(authToken?: string | null): Promise<AllModelsResponse> {
+    const client = createApiClient(authToken);
+    const response: AxiosResponse<ApiResponse<AllModelsResponse>> =
+      await client.get("/chat/models/all");
+
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch all models");
     }
 
     return response.data.data!;
