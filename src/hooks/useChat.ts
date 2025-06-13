@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { api } from "../api";
+import { useAuthContext } from "../contexts/AuthContext";
+import { useThreadMessagesQuery } from "../queries/threads";
 import { ChatMessage, ChatRequest } from "../types";
 import { generateObjectId } from "../utils/objectId";
 import { useChatState } from "./useChatState";
@@ -12,53 +14,60 @@ interface UseChatReturn {
   sendMessage: (message: string, model?: string) => Promise<string | null>;
   clearMessages: () => void;
   clearError: () => void;
+  refetchThread: () => void;
 }
 
 export const useChat = (): UseChatReturn => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [tempMessages, setTempMessages] = useState<ChatMessage[]>([]);
-  const [loadingMessages, setLoadingMessages] = useState(false);
+  const [loadedThreads, setLoadedThreads] = useState<Set<string>>(new Set());
 
+  const { getToken } = useAuthContext();
   const { state, setCurrentThread, setStreaming, updateMessages } =
     useChatState();
   const currentThreadId = state.chat.currentThreadId;
+  const isStreaming = state.chat.isStreaming;
 
-  // Load messages when thread changes
+  const shouldLoadFromBackend =
+    currentThreadId && !loadedThreads.has(currentThreadId);
+
+  const { data: backendMessages, isLoading: loadingMessages } =
+    useThreadMessagesQuery(
+      shouldLoadFromBackend ? currentThreadId : null,
+      isStreaming
+    );
+
+  // Load messages from backend ONCE when thread is first opened
   useEffect(() => {
-    const loadThreadMessages = async () => {
-      if (!currentThreadId) return;
+    if (
+      currentThreadId &&
+      backendMessages &&
+      backendMessages.length > 0 &&
+      !isStreaming
+    ) {
+      const chatMessages: ChatMessage[] = backendMessages.map((msg: any) => ({
+        id: msg._id || generateObjectId(),
+        role: msg.role,
+        content: msg.content,
+        timestamp: new Date(msg.createdAt || msg.timestamp),
+        model: msg.model,
+      }));
 
-      // Don't load if we already have messages for this thread
-      if (state.chat.messages[currentThreadId]?.length > 0) return;
+      updateMessages(currentThreadId, chatMessages);
 
-      try {
-        setLoadingMessages(true);
-        setError(null);
-        const backendMessages = await api.getThreadMessages(currentThreadId);
+      // Mark this thread as loaded so we don't refetch it
+      setLoadedThreads((prev) => new Set(prev).add(currentThreadId));
+    }
+  }, [currentThreadId, backendMessages, updateMessages, isStreaming]);
 
-        // Convert backend messages to ChatMessage format
-        const chatMessages: ChatMessage[] = backendMessages.map((msg: any) => ({
-          id: msg._id || generateObjectId(),
-          role: msg.role,
-          content: msg.content,
-          timestamp: new Date(msg.createdAt || msg.timestamp),
-          model: msg.model,
-        }));
-
-        // Update global state with loaded messages
-        updateMessages(currentThreadId, chatMessages);
-      } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load thread messages"
-        );
-      } finally {
-        setLoadingMessages(false);
-      }
-    };
-
-    loadThreadMessages();
-  }, [currentThreadId, state.chat.messages, updateMessages]);
+  // Reset loaded threads when switching away from a thread
+  useEffect(() => {
+    if (!currentThreadId) {
+      // Optionally clear loaded threads when no thread is active
+      // setLoadedThreads(new Set());
+    }
+  }, [currentThreadId]);
 
   // Get messages for the current thread from global state, sorted by timestamp
   // If no thread ID, use temporary messages for new conversations
@@ -77,15 +86,6 @@ export const useChat = (): UseChatReturn => {
         new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
     );
   }, [state.chat.messages, currentThreadId, tempMessages]);
-
-  const updateCurrentThreadMessages = useCallback(
-    (newMessages: ChatMessage[]) => {
-      if (currentThreadId) {
-        updateMessages(currentThreadId, newMessages);
-      }
-    },
-    [currentThreadId, updateMessages]
-  );
 
   const sendMessage = useCallback(
     async (message: string, model?: string): Promise<string | null> => {
@@ -141,8 +141,11 @@ export const useChat = (): UseChatReturn => {
           threadId: threadId || undefined,
         };
 
+        // Get auth token and pass it to the API call
+        const authToken = await getToken();
         const { stream, threadId: serverThreadId } = await api.streamChat(
-          chatRequest
+          chatRequest,
+          authToken
         );
 
         const reader = stream.getReader();
@@ -155,6 +158,8 @@ export const useChat = (): UseChatReturn => {
           threadId = serverThreadId;
           updateMessages(serverThreadId, messagesWithAssistant);
           setTempMessages([]);
+          // Mark new thread as loaded since we're creating it
+          setLoadedThreads((prev) => new Set(prev).add(serverThreadId));
         }
 
         while (true) {
@@ -203,21 +208,39 @@ export const useChat = (): UseChatReturn => {
       updateMessages,
       state.chat.messages,
       tempMessages,
+      getToken,
     ]
   );
 
   const clearMessages = useCallback(() => {
     if (currentThreadId) {
       updateMessages(currentThreadId, []);
+      // Remove from loaded threads so it can be reloaded if needed
+      setLoadedThreads((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(currentThreadId);
+        return newSet;
+      });
     }
-    setTempMessages([]); // Clear temporary messages
+    setTempMessages([]);
     setError(null);
-    setCurrentThread(null); // Clear the current thread for new conversation
+    setCurrentThread(null);
   }, [currentThreadId, updateMessages, setCurrentThread]);
 
   const clearError = useCallback(() => {
     setError(null);
   }, []);
+
+  const refetchThread = useCallback(() => {
+    if (currentThreadId) {
+      // Remove from loaded threads to force a refetch
+      setLoadedThreads((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(currentThreadId);
+        return newSet;
+      });
+    }
+  }, [currentThreadId]);
 
   return {
     messages,
@@ -227,5 +250,6 @@ export const useChat = (): UseChatReturn => {
     sendMessage,
     clearMessages,
     clearError,
+    refetchThread,
   };
 };

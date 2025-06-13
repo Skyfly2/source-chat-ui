@@ -4,29 +4,26 @@ import { ApiResponse, ChatRequest, ModelsResponse } from "../types";
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL || "http://localhost:8080/api";
 
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  timeout: 30000,
-});
+const createApiClient = (authToken?: string | null) => {
+  const client = axios.create({
+    baseURL: API_BASE_URL,
+    timeout: 30000,
+  });
 
-let currentAuthToken: string | null = null;
-
-export const setAuthToken = (token: string | null) => {
-  currentAuthToken = token;
-  if (token) {
-    apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-  } else {
-    delete apiClient.defaults.headers.common["Authorization"];
+  if (authToken) {
+    client.defaults.headers.common["Authorization"] = `Bearer ${authToken}`;
   }
+
+  return client;
 };
 
-const getAuthHeaders = (): Record<string, string> => {
+const getAuthHeaders = (authToken?: string | null): Record<string, string> => {
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 
-  if (currentAuthToken) {
-    headers.Authorization = `Bearer ${currentAuthToken}`;
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
   }
 
   return headers;
@@ -47,9 +44,10 @@ export interface ThreadsResponse {
 }
 
 export const api = {
-  async getModels(): Promise<ModelsResponse> {
+  async getModels(authToken?: string | null): Promise<ModelsResponse> {
+    const client = createApiClient(authToken);
     const response: AxiosResponse<ApiResponse<ModelsResponse>> =
-      await apiClient.get("/chat/models");
+      await client.get("/chat/models");
 
     if (!response.data.success) {
       throw new Error(response.data.error || "Failed to fetch models");
@@ -58,13 +56,16 @@ export const api = {
     return response.data.data!;
   },
 
-  async streamChat(request: ChatRequest): Promise<{
+  async streamChat(
+    request: ChatRequest,
+    authToken?: string | null
+  ): Promise<{
     stream: ReadableStream<Uint8Array>;
     threadId?: string;
   }> {
     const response = await fetch(`${API_BASE_URL}/chat/stream`, {
       method: "POST",
-      headers: getAuthHeaders(),
+      headers: getAuthHeaders(authToken),
       body: JSON.stringify(request),
     });
 
@@ -84,13 +85,17 @@ export const api = {
     };
   },
 
-  async getThreads(params?: {
-    limit?: number;
-    skip?: number;
-    search?: string;
-  }): Promise<ThreadsResponse> {
+  async getThreads(
+    params?: {
+      limit?: number;
+      skip?: number;
+      search?: string;
+    },
+    authToken?: string | null
+  ): Promise<ThreadsResponse> {
+    const client = createApiClient(authToken);
     const response: AxiosResponse<ApiResponse<ThreadsResponse>> =
-      await apiClient.get("/threads", { params });
+      await client.get("/threads", { params });
 
     if (!response.data.success) {
       throw new Error(response.data.error || "Failed to fetch threads");
@@ -99,8 +104,12 @@ export const api = {
     return response.data.data!;
   },
 
-  async deleteThread(threadId: string): Promise<void> {
-    const response: AxiosResponse<ApiResponse<never>> = await apiClient.delete(
+  async deleteThread(
+    threadId: string,
+    authToken?: string | null
+  ): Promise<void> {
+    const client = createApiClient(authToken);
+    const response: AxiosResponse<ApiResponse<never>> = await client.delete(
       `/threads/${threadId}`
     );
 
@@ -111,10 +120,12 @@ export const api = {
 
   async updateThread(
     threadId: string,
-    updates: { title?: string; model?: string }
+    updates: { title?: string; model?: string },
+    authToken?: string | null
   ): Promise<MessageThread> {
+    const client = createApiClient(authToken);
     const response: AxiosResponse<ApiResponse<{ thread: MessageThread }>> =
-      await apiClient.put(`/threads/${threadId}`, updates);
+      await client.put(`/threads/${threadId}`, updates);
 
     if (!response.data.success) {
       throw new Error(response.data.error || "Failed to update thread");
@@ -123,9 +134,13 @@ export const api = {
     return response.data.data!.thread;
   },
 
-  async getThreadMessages(threadId: string): Promise<any[]> {
+  async getThreadMessages(
+    threadId: string,
+    authToken?: string | null
+  ): Promise<any[]> {
+    const client = createApiClient(authToken);
     const response: AxiosResponse<ApiResponse<{ messages: any[] }>> =
-      await apiClient.get(`/threads/${threadId}/messages`);
+      await client.get(`/threads/${threadId}/messages`);
 
     if (!response.data.success) {
       throw new Error(response.data.error || "Failed to fetch thread messages");

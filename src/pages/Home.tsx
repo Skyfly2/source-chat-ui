@@ -69,11 +69,6 @@ export const Home: React.FC = memo(() => {
     const refreshIfNewThread = async () => {
       if (state.chat.currentThreadId) {
         if (!threadsRef.current.includes(state.chat.currentThreadId)) {
-          console.log(
-            "🔄 Refreshing threads for new thread ID:",
-            state.chat.currentThreadId
-          );
-
           threadsRef.current.push(state.chat.currentThreadId);
 
           await new Promise((resolve) => setTimeout(resolve, 300));

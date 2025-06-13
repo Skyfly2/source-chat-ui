@@ -48,10 +48,6 @@ export const ChatInput = memo<ChatInputProps>(
       [handleSend]
     );
 
-    const handleStop = useCallback(() => {
-      console.log("Stop streaming requested");
-    }, []);
-
     return (
       <Box sx={{ display: "flex", flexDirection: "column", gap: 1 }}>
         {/* Model Selector Row */}
@@ -163,7 +159,6 @@ export const ChatInput = memo<ChatInputProps>(
 
           {isStreaming ? (
             <IconButton
-              onClick={handleStop}
               sx={{
                 background:
                   "linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.2) 100%)",

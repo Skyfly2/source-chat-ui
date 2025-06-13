@@ -1,6 +1,5 @@
 import { useAuth } from "@clerk/clerk-react";
-import React, { createContext, useContext, useEffect } from "react";
-import { setAuthToken } from "../api";
+import React, { createContext, useContext } from "react";
 
 interface AuthContextType {
   isSignedIn: boolean;
@@ -14,21 +13,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const { isSignedIn, isLoaded, getToken } = useAuth();
-
-  useEffect(() => {
-    const updateAuthToken = async () => {
-      if (isSignedIn) {
-        const token = await getToken();
-        setAuthToken(token);
-      } else {
-        setAuthToken(null);
-      }
-    };
-
-    if (isLoaded) {
-      updateAuthToken();
-    }
-  }, [isSignedIn, isLoaded, getToken]);
 
   const contextValue: AuthContextType = {
     isSignedIn: isSignedIn || false,
