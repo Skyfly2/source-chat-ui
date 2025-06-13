@@ -21,7 +21,6 @@ export const Home: React.FC = memo(() => {
     state,
     toggleSidebar: globalToggleSidebar,
     setSidebarOpen,
-    setSelectedModel: globalSetSelectedModel,
     setCurrentThread,
   } = useChatState();
 
@@ -96,16 +95,14 @@ export const Home: React.FC = memo(() => {
   const handleNewChat = useCallback(() => {
     clearMessages();
     setCurrentThreadId(null);
-    setSidebarOpen(false);
-  }, [clearMessages, setSidebarOpen]);
+  }, [clearMessages]);
 
   const handleSelectThread = useCallback(
     (id: string) => {
       setCurrentThreadId(id);
       setCurrentThread(id);
-      setSidebarOpen(false);
     },
-    [setSidebarOpen, setCurrentThread]
+    [setCurrentThread]
   );
 
   const handleDeleteThread = useCallback(
