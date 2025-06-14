@@ -14,8 +14,8 @@ import { useThreads } from "../hooks/useThreads";
 
 export const Home: React.FC = memo(() => {
   const [currentThreadId, setCurrentThreadId] = useState<string | null>(null);
-
   const { isSignedIn, isLoading: authLoading } = useAuthContext();
+  const [isWebSearchEnabled, setIsWebSearchEnabled] = useState(false);
 
   const {
     state,
@@ -83,13 +83,23 @@ export const Home: React.FC = memo(() => {
     async (message: string) => {
       const wasNewThread = !currentThreadId && !state.chat.currentThreadId;
 
-      const resultThreadId = await sendMessage(message, selectedModel);
+      const resultThreadId = await sendMessage(
+        message,
+        selectedModel,
+        isWebSearchEnabled
+      );
 
       if (wasNewThread && resultThreadId) {
         setCurrentThreadId(resultThreadId);
       }
     },
-    [sendMessage, selectedModel, state.chat.currentThreadId, currentThreadId]
+    [
+      sendMessage,
+      selectedModel,
+      state.chat.currentThreadId,
+      currentThreadId,
+      isWebSearchEnabled,
+    ]
   );
 
   const handleNewChat = useCallback(() => {
@@ -264,6 +274,8 @@ export const Home: React.FC = memo(() => {
               selectedModel={selectedModel}
               onModelChange={setSelectedModel}
               modelsLoading={modelsLoading}
+              isWebSearchEnabled={isWebSearchEnabled}
+              onWebSearchToggle={() => setIsWebSearchEnabled((prev) => !prev)}
             />
           </Box>
         </Box>

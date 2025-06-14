@@ -11,7 +11,11 @@ interface UseChatReturn {
   isLoading: boolean;
   isStreaming: boolean;
   error: string | null;
-  sendMessage: (message: string, model?: string) => Promise<string | null>;
+  sendMessage: (
+    message: string,
+    model?: string,
+    webSearch?: boolean
+  ) => Promise<string | null>;
   clearMessages: () => void;
   clearError: () => void;
   refetchThread: () => void;
@@ -88,7 +92,11 @@ export const useChat = (): UseChatReturn => {
   }, [state.chat.messages, currentThreadId, tempMessages]);
 
   const sendMessage = useCallback(
-    async (message: string, model?: string): Promise<string | null> => {
+    async (
+      message: string,
+      model?: string,
+      webSearch?: boolean
+    ): Promise<string | null> => {
       if (!message.trim()) return null;
 
       setError(null);
@@ -139,6 +147,7 @@ export const useChat = (): UseChatReturn => {
             content: msg.content,
           })),
           threadId: threadId || undefined,
+          webSearch,
         };
 
         // Get auth token and pass it to the API call

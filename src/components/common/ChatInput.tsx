@@ -1,5 +1,5 @@
-import { Send, Stop } from "@mui/icons-material";
-import { Box, IconButton, InputBase, Paper } from "@mui/material";
+import { Send, Stop, TravelExplore } from "@mui/icons-material";
+import { Box, IconButton, InputBase, Paper, Tooltip } from "@mui/material";
 import { KeyboardEvent, memo, useCallback, useState } from "react";
 import { ModelInfo } from "../../types";
 import { ModelSelectorPopup } from "./ModelSelectorPopup";
@@ -14,6 +14,8 @@ interface ChatInputProps {
   selectedModel: string;
   onModelChange: (model: string) => void;
   modelsLoading: boolean;
+  isWebSearchEnabled: boolean;
+  onWebSearchToggle: () => void;
 }
 
 export const ChatInput = memo<ChatInputProps>(
@@ -27,6 +29,8 @@ export const ChatInput = memo<ChatInputProps>(
     selectedModel,
     onModelChange,
     modelsLoading,
+    isWebSearchEnabled,
+    onWebSearchToggle,
   }) => {
     const [message, setMessage] = useState("");
     const [isFocused, setIsFocused] = useState(false);
@@ -55,6 +59,8 @@ export const ChatInput = memo<ChatInputProps>(
           sx={{
             display: "flex",
             justifyContent: "flex-start",
+            alignItems: "center",
+            gap: 0.5,
             width: {
               xs: "100%",
               sm: "95%",
@@ -72,6 +78,28 @@ export const ChatInput = memo<ChatInputProps>(
             onModelChange={onModelChange}
             disabled={modelsLoading || isStreaming}
           />
+          <Tooltip title="Toggle web search">
+            <IconButton
+              onClick={onWebSearchToggle}
+              disabled={disabled || isStreaming}
+              sx={{
+                color: isWebSearchEnabled ? "primary.main" : "text.secondary",
+                width: 36,
+                height: 36,
+                transition: "all 0.15s ease-out",
+                "&:hover": {
+                  background: (theme) =>
+                    theme.palette.mode === "dark"
+                      ? "rgba(148, 163, 184, 0.1)"
+                      : "rgba(148, 163, 184, 0.08)",
+                  transform: "scale(1.05)",
+                },
+              }}
+              size="small"
+            >
+              <TravelExplore fontSize="small" />
+            </IconButton>
+          </Tooltip>
         </Box>
 
         {/* Input Row */}
@@ -156,7 +184,6 @@ export const ChatInput = memo<ChatInputProps>(
               style: { resize: "none" },
             }}
           />
-
           {isStreaming ? (
             <IconButton
               sx={{

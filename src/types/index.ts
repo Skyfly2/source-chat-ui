@@ -52,6 +52,7 @@ export interface ChatRequest {
   context?: AIMessage[];
   promptKey?: string;
   threadId?: string;
+  webSearch?: boolean;
 }
 
 export * from "./state";
