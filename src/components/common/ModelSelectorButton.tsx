@@ -2,6 +2,7 @@ import { ExpandMore } from "@mui/icons-material";
 import { Box, Button, Typography } from "@mui/material";
 import { memo } from "react";
 import { ModelInfo } from "../../types";
+import { getModelDisplayName } from "../../utils/models";
 import { ProviderLogo } from "./ProviderLogo";
 
 interface ModelSelectorButtonProps {
@@ -62,14 +63,14 @@ export const ModelSelectorButton = memo<ModelSelectorButtonProps>(
             sx={{
               fontSize: "0.85rem",
               fontWeight: 600,
-              overflow: "hidden",
-              textOverflow: "ellipsis",
               whiteSpace: "nowrap",
               letterSpacing: "-0.01em",
               fontFamily: '"Manrope", "Inter", sans-serif',
             }}
           >
-            {selectedModelInfo?.displayName || "Select Model"}
+            {selectedModelInfo
+              ? getModelDisplayName(selectedModelInfo)
+              : "Select Model"}
           </Typography>
         </Box>
       </Button>

@@ -11,6 +11,11 @@ interface ModelCardProps {
   onSelect: (modelName: string) => void;
 }
 
+const getModelDisplayName = (modelInfo: ModelInfo) => {
+  const parts = modelInfo.displayName.split(": ");
+  return parts.length > 1 ? parts[1] : modelInfo.displayName;
+};
+
 export const ModelCard = memo<ModelCardProps>(
   ({ modelInfo, isSelected, onSelect }) => {
     return (
@@ -76,7 +81,7 @@ export const ModelCard = memo<ModelCardProps>(
                     fontFamily: '"Manrope", "Inter", sans-serif',
                   }}
                 >
-                  {modelInfo.displayName}
+                  {getModelDisplayName(modelInfo)}
                 </Typography>
               </Box>
               {isSelected && (
